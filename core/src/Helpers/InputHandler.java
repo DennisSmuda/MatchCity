@@ -704,6 +704,14 @@ public class InputHandler implements InputProcessor {
                         }
                     }
 
+                    if (i > 7) {
+                        // down tetro check
+                        if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j + 2).getType()) {
+                            lvlIncrease += myWorld.getGameObject(i + 1, j+2).getLevel();
+                            myWorld.setGameObject(i + 1, j+2, 0);
+                        }
+                    }
+
                     myWorld.setGameObject(i,j+1, 0);
                     myWorld.setGameObject(i+1,j+1, 0);
 
@@ -714,8 +722,8 @@ public class InputHandler implements InputProcessor {
                 }
                 if (currentTile == (myWorld.getFirstVTile() + 8)) {
 
-                    lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
-                    lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
+                    lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
+                    lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
 
                     if (j < 8) {
                         // downward tetro
@@ -778,6 +786,8 @@ public class InputHandler implements InputProcessor {
                 }
             }
 
+            addResources(myWorld.getGameObject(i, j).getType());
+
         } else {
             //myWorld.checkMatches();
         }
@@ -795,6 +805,19 @@ public class InputHandler implements InputProcessor {
         return false;
     }
 
+
+    private void addResources(GameObject.FieldType currentType) {
+        switch (currentType) {
+            case HOUSING:
+                ResourceHandler.citizens++;
+                break;
+            case FARM:
+                ResourceHandler.food++;
+                break;
+            default:
+                break;
+        }
+    }
 
 
     @Override

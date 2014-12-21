@@ -3,6 +3,7 @@ package GameWorld;
 import GameObjects.GameObject;
 import GameObjects.Industry;
 import Helpers.AssetLoader;
+import Helpers.ResourceHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -42,7 +43,7 @@ public class GameRenderer {
     private int currentTrash;
     private int currentIncome;
 
-    private int infoXOff = 6;
+    private int infoXOff = 5;
     private int infoYoff = 4;
 
 
@@ -147,6 +148,7 @@ public class GameRenderer {
         AssetLoader.font.draw(batcher,"$ " + netWorth, 4, 5);
 
         drawBottom();
+        drawInfo();
 
         batcher.end();
 
@@ -157,8 +159,10 @@ public class GameRenderer {
 
 
         levelString = levelInt.toString();
-        AssetLoader.pixel.setColor(115 / 255.0f, 55 / 255.0f, 55 / 255.0f, 1f);
-        AssetLoader.pixel.draw(batcher, "Food: ", 150, 4);
+        AssetLoader.pixelInfo.setColor(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1f);
+        AssetLoader.pixelInfo.setScale(.15f, -.15f);
+        AssetLoader.pixelInfo.draw(batcher, "Citizens: " + ResourceHandler.citizens, 64, 15);
+        AssetLoader.pixelInfo.draw(batcher, "Food: " + ResourceHandler.food, 64, 5);
     }
 
     private void drawBottom() {

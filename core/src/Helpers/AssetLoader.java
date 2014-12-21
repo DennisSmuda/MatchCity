@@ -21,7 +21,7 @@ public class AssetLoader {
     public static TextureRegion houseB, farmB, governB, parkB;//usw
 
 
-    public static BitmapFont font, shadow, pixel;
+    public static BitmapFont font, shadow, pixel, pixelInfo;
 
     private static Preferences prefs;
 
@@ -66,7 +66,8 @@ public class AssetLoader {
         shadow = new BitmapFont(Gdx.files.internal("data/shadow.fnt"));
         shadow.setScale(.2f, -.2f);
         pixel = new BitmapFont(Gdx.files.internal("data/04b_19.fnt"));
-        pixel.setScale(.3f, -.3f);
+        pixel.setScale(.25f, -.25f);
+        pixelInfo = new BitmapFont(Gdx.files.internal("data/lcd_solid.fnt"));
 
 
         // Create or retrieve existing Preferences file
