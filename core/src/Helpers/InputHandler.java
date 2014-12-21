@@ -216,6 +216,13 @@ public class InputHandler implements InputProcessor {
                         if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j + 1).getType()) {
                             lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
                             myWorld.setGameObject(i + 1, j + 1, 0);
+                            if(j < 7) {
+                                // cross
+                                if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i + 1, j + 2).getType()) {
+                                    lvlIncrease += myWorld.getGameObject(i + 1, j + 2).getLevel();
+                                    myWorld.setGameObject(i + 1, j + 2, 0);
+                                }
+                            }
                         }
                         // check downwards reverse lying L
                         if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
@@ -570,11 +577,11 @@ public class InputHandler implements InputProcessor {
                     lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
                     lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
 
-                    if (i < 7) {
+                    if (i < 6) {
                         // check tetromino
-                        if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j + 1).getType()) {
-                            lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
-                            myWorld.setGameObject(i + 1, j + 1, 0);
+                        if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j + 1).getType()) {
+                            lvlIncrease += myWorld.getGameObject(i + 2, j + 1).getLevel();
+                            myWorld.setGameObject(i + 2, j + 1, 0);
                         }
                     }
 
@@ -620,6 +627,20 @@ public class InputHandler implements InputProcessor {
                         if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j).getType()) {
                             lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
                             myWorld.setGameObject(i + 1, j, 0);
+                        }
+                    }
+
+                    if (j < 8) {
+                        if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
+                            lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
+                            myWorld.setGameObject(i, j + 1, 0);
+
+                            if (j < 7) {
+                                if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
+                                    lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
+                                    myWorld.setGameObject(i, j + 2, 0);
+                                }
+                            }
                         }
                     }
 
