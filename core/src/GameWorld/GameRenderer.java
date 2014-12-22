@@ -168,8 +168,8 @@ public class GameRenderer {
     private void drawBottom() {
         AssetLoader.font.setScale(.1f, -.1f);
         AssetLoader.shadow.setScale(.1f, -.1f);
-        AssetLoader.shadow.draw(batcher, "Next tile: ", 5, 181);
-        AssetLoader.font.draw(batcher, "Next tile: ", 4, 180);
+        AssetLoader.pixelInfo.draw(batcher, "Next tile: ", 5, 181);
+        //AssetLoader.font.draw(batcher, "Next tile: ", 4, 180);
 
         AssetLoader.font.setScale(.2f, -.2f);
         AssetLoader.shadow.setScale(.2f, -.2f);
@@ -177,7 +177,7 @@ public class GameRenderer {
         int x = 45;
         int y = 178;
         // draw next three elements
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1; i++) {
             switch (myWorld.nextThree[i]) {
                 case 1:
                     batcher.draw(housing, x, y, 8, 8);

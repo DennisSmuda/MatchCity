@@ -2,6 +2,7 @@ package GameWorld;
 
 import GameObjects.*;
 import Helpers.InputHandler;
+import Helpers.ResourceHandler;
 import UI.GameButton;
 
 import java.util.ArrayList;
@@ -101,6 +102,7 @@ public class GameWorld {
     public void updateRunning(float delta) {
         if(delta > .15f) {
             delta = .15f;
+            ResourceHandler.update(delta);
         }
     }
 

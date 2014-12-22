@@ -401,6 +401,21 @@ public class InputHandler implements InputProcessor {
                         }
                     }
 
+                    if (i > 0) {
+                        // check reverse L
+                        if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j+1).getType()) {
+                            lvlIncrease += myWorld.getGameObject(i-1, j+1).getLevel();
+                            myWorld.setGameObject(i-1, j+1, 0);
+
+                            if (i > 1) { // check big liyng T to the right
+                                if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j+1).getType()) {
+                                    lvlIncrease += myWorld.getGameObject(i - 2, j+1).getLevel();
+                                    myWorld.setGameObject(i - 2, j+1, 0);
+                                }
+                            }
+                        }
+                    }
+
                     if (j < 7) {
                         // 4 downwards
                         if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+1).getType()) {
