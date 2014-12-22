@@ -16,6 +16,7 @@ public class GameWorld {
     private FieldState[][] feld;
     public GameObject[][] gameField;
     public int[] nextThree;
+    public int[] nextRandoms;
     public boolean matchFoundH = false;
     public boolean matchFoundV = false;
 
@@ -36,6 +37,8 @@ public class GameWorld {
 
     private int maxStartingRoads = 6;
     private int roadsOnField = 0;
+    private int maxRoads = 20;
+    private boolean maxRoadB = false;
 
 
     // MoneyStuff
@@ -52,8 +55,15 @@ public class GameWorld {
     public GameWorld( int midPointY) {
         // Initialize next three elements
         nextThree = new int[3];
+        nextRandoms = new int[5];
+
+        // First three
         for (int i = 0; i < 3; i++) {
-            nextThree[i] = randInt(1, 4);
+            nextThree[i] = randInt(1, 11);
+        }
+        // First Randoms
+        for (int i = 0; i < 5; i++) {
+            nextRandoms[i] = randInt(1, 11);
         }
 
         gameField = new GameObject[8][9];
@@ -63,7 +73,7 @@ public class GameWorld {
         for (int i = 0; i < 8; i++){
             for(int j = 0; j < 9; j++) {
                 gameField[i][j] = new EmptyField(i, j);
-                if(randInt(1,100) < 20 && roadsOnField <= maxStartingRoads) {
+                if(randInt(1,100) < 10 && roadsOnField <= maxStartingRoads) {
                     gameField[i][j] = new Road(i, j);
                     addRoad();
                 }
@@ -75,7 +85,6 @@ public class GameWorld {
                 }
             }
         }
-
 
 
         currentState = GameState.READY;
@@ -103,6 +112,7 @@ public class GameWorld {
         if(delta > .15f) {
             delta = .15f;
             ResourceHandler.update(delta);
+            System.out.println("handler update! " + delta);
         }
     }
 
@@ -181,10 +191,12 @@ public class GameWorld {
         nextThree[2] = randInt(1, 11);
 
         int next = randInt(1, 100);
-        if (next < 30) {
-            nextThree[2] = 1;
-        } else if (next < 50) {
-            nextThree[2] = 2;
+        if (next < 20) {
+            nextThree[2] = 1; // house
+        } else if (next < 40) {
+            nextThree[2] = 2; // farm
+        } else if (next < 50 && getMaxRoadB()) {
+        nextThree[2] = 3; // road
         } else if (next < 60) {
             nextThree[2] = 7; // power
         } else if (next < 70) {
@@ -205,7 +217,7 @@ public class GameWorld {
 
 
 
-       // Todo: Debug all housing spawn
+        // Todo: Debug all housing spawn
         //nextThree[0] = 1;
         //nextThree[1] = 1;
         //nextThree[2] = 1;
@@ -216,6 +228,9 @@ public class GameWorld {
         return nextThree[0];
     }
 
+    public boolean getMaxRoadB() {
+        return (roadsOnField == maxRoads);
+    }
 
 
     // returns 1 for hmatch, 2 for vmatch
@@ -293,13 +308,49 @@ public class GameWorld {
     public int getFirstVTile() { return firstVTile; }
     public void resetVHTile() { firstVTile = 0; firstHTile = 0; }
 
-    public void setMatchFound(int i, boolean b) {
-        // 1 = h , 2 = v
-        if (i == 1) {
-            matchFoundH = b;
+    public void calculateNextRandoms() {
+        nextRandoms[0] = randInt(1, 11);
+        nextRandoms[1] = randInt(1, 11);
+        nextRandoms[2] = randInt(1, 11);
+        nextRandoms[3] = randInt(1, 11);
+        nextRandoms[4] = randInt(1, 11);
+
+        int next = randInt(1, 100);
+        if (next < 20) {
+            nextThree[2] = 1; // house
+        } else if (next < 40) {
+            nextThree[2] = 2; // farm
+        } else if (next < 50 && getMaxRoadB()) {
+            nextThree[2] = 3; // road
+        } else if (next < 60) {
+            nextThree[2] = 7; // power
+        } else if (next < 70) {
+            nextThree[2] = 10; // trash
+        } else if (next < 75) {
+            nextThree[2] = 5; // park
+        } else if (next < 80) {
+            nextThree[2] = 8; // industry
+        } else if (next < 85) {
+            nextThree[2] = 6; // shops
+        } else if(next < 90) {
+            nextThree[2] = 11; // CITY
+        } else if (next < 95) {
+            nextThree[2] = 9;
+        } else {
+            nextThree[2] = 2;
         }
-        if (i == 2) {
-            matchFoundV = b;
-        }
+
+        // Todo: Debug all housing spawn
+        //nextThree[0] = 1;
+        //nextThree[1] = 1;
+        //nextThree[2] = 1;
+
     }
+
+    public int nextRandomType(int i) {
+        return nextRandoms[i];
+    }
+
+
+
 }

@@ -147,7 +147,7 @@ public class GameRenderer {
         AssetLoader.shadow.draw(batcher,"$ " + netWorth, 5, 6);
         AssetLoader.font.draw(batcher,"$ " + netWorth, 4, 5);
 
-        drawBottom();
+        drawNextTile();
         drawInfo();
 
         batcher.end();
@@ -161,21 +161,21 @@ public class GameRenderer {
         levelString = levelInt.toString();
         AssetLoader.pixelInfo.setColor(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1f);
         AssetLoader.pixelInfo.setScale(.15f, -.15f);
-        AssetLoader.pixelInfo.draw(batcher, "Citizens: " + ResourceHandler.citizens, 64, 15);
-        AssetLoader.pixelInfo.draw(batcher, "Food: " + ResourceHandler.food, 64, 5);
+        AssetLoader.pixelInfo.draw(batcher, "Citizens: " + ResourceHandler.citizens, 5, 174);
+        AssetLoader.pixelInfo.draw(batcher, "Food: " + ResourceHandler.food, 5, 184);
     }
 
-    private void drawBottom() {
-        AssetLoader.font.setScale(.1f, -.1f);
-        AssetLoader.shadow.setScale(.1f, -.1f);
-        AssetLoader.pixelInfo.draw(batcher, "Next tile: ", 5, 181);
-        //AssetLoader.font.draw(batcher, "Next tile: ", 4, 180);
+    private void drawNextTile() {
+
+        AssetLoader.pixelInfo.draw(batcher, "Next tile: ", 60, 5);
+        AssetLoader.pixelInfo.draw(batcher, "Random tiles: ", 60, 15);
+
 
         AssetLoader.font.setScale(.2f, -.2f);
         AssetLoader.shadow.setScale(.2f, -.2f);
 
-        int x = 45;
-        int y = 178;
+        int x = 100;
+        int y = 3;
         // draw next three elements
         for (int i = 0; i < 1; i++) {
             switch (myWorld.nextThree[i]) {
@@ -219,6 +219,51 @@ public class GameRenderer {
             x += 10;
         }
 
+        x = 100;
+        y = 13;
+        // draw next random elements
+        for (int i = 0; i < 5; i++) {
+            switch (myWorld.nextRandoms[i]) {
+                case 1:
+                    batcher.draw(housing, x, y, 8, 8);
+                    break;
+                case 2:
+                    batcher.draw(farm, x, y, 8, 8);
+                    break;
+                case 3:
+                    batcher.draw(road, x, y, 8, 8);
+                    break;
+                case 4:
+                    batcher.draw(government, x, y, 8, 8);
+                    break;
+                case 5:
+                    batcher.draw(park, x, y, 8, 8);
+                    break;
+                case 6:
+                    batcher.draw(shops, x, y, 8, 8);
+                    break;
+                case 7:
+                    batcher.draw(power, x, y, 8, 8);
+                    break;
+                case 8:
+                    batcher.draw(industry, x, y, 8, 8);
+                    break;
+                case 9:
+                    batcher.draw(special, x, y, 8, 8);
+                    break;
+                case 10:
+                    batcher.draw(trash, x, y, 8, 8);
+                    break;
+                case 11:
+                    batcher.draw(city, x, y, 8, 8);
+                    break;
+
+                default:
+                    break;
+            }
+            x += 5;
+            if (x >= 125) y += 10;
+        }
 
 
     }

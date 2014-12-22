@@ -7,6 +7,8 @@ import Screens.GameScreen;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.Random;
+
 /**
  * Created by smuda on 12.12.2014.
  */
@@ -594,9 +596,9 @@ public class InputHandler implements InputProcessor {
 
                     if (i < 6) {
                         // check tetromino
-                        if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j + 1).getType()) {
-                            lvlIncrease += myWorld.getGameObject(i + 2, j + 1).getLevel();
-                            myWorld.setGameObject(i + 2, j + 1, 0);
+                        if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j + 1).getType()) {
+                            lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
+                            myWorld.setGameObject(i + 1, j + 1, 0);
                         }
                     }
 
@@ -822,7 +824,8 @@ public class InputHandler implements InputProcessor {
                 }
             }
 
-            addResources(myWorld.getGameObject(i, j).getType());
+            addResources(myWorld.getGameObject(i, j));
+            addFields(myWorld.getGameObject(i, j).getType());
 
         } else {
             //myWorld.checkMatches();
@@ -836,23 +839,34 @@ public class InputHandler implements InputProcessor {
         currenSelect.x = i;
         currenSelect.y = j;
 
+        // place random fields on random spots.
+        //int randI = randInt(0, 7);
+        //int randJ = randInt(0, 8);
 
+        //if (myWorld.getGameObject(randI, randJ).getType() == GameObject.FieldType.EMPTY) {
+        //    myWorld.setGameObject(randI, randJ, myWorld.nextRandomType(1));
+        //}
 
-        return false;
+        return true;
     }
 
 
-    private void addResources(GameObject.FieldType currentType) {
-        switch (currentType) {
+    private void addResources(GameObject currentObj) {
+        switch (currentObj.getType()) {
             case HOUSING:
-                ResourceHandler.citizens++;
+                ResourceHandler.citizens += 5;
                 break;
             case FARM:
-                ResourceHandler.food++;
+                ResourceHandler.food += (10 * currentObj.getLevel());
+                ResourceHandler.farms += 1;
                 break;
             default:
                 break;
         }
+    }
+
+    private void addFields(GameObject.FieldType currentType) {
+
     }
 
 
@@ -899,4 +913,9 @@ public class InputHandler implements InputProcessor {
         return (int) (screenY / scaleFactorY);
     }
 
+    public static int randInt(int min, int max) {
+        Random rand = new Random();
+        int randomNum = rand.nextInt((max - min) + 1) + min;
+        return randomNum;
+    }
 }
