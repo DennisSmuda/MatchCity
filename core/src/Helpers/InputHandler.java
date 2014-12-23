@@ -156,6 +156,8 @@ public class InputHandler implements InputProcessor {
                     c = c - 1;
                 }
             }
+        } else if (myWorld.getNumFree() < 1) {
+            myWorld.initializeField();
         }
 
         myWorld.checkFreeTiles();
