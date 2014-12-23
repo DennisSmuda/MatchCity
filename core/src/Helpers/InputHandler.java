@@ -41,6 +41,9 @@ public class InputHandler implements InputProcessor {
 
         touchDown(100,100,0,0);
 
+        int free = myWorld.getNumFree();
+        System.out.println("NumFree: " + free);
+
     }
 
     @Override
@@ -127,39 +130,39 @@ public class InputHandler implements InputProcessor {
         }
 
 
+
         myWorld.getGameObject((int)currenSelect.x, (int)currenSelect.y).setSelected(false);
         myWorld.getGameObject(i, j).setSelected(true);
         currenSelect.x = i;
         currenSelect.y = j;
 
-        int randomPlaced = 0;
+
+        // Check if enough tiles are free
+        myWorld.checkFreeTiles();
+        int free = myWorld.getNumFree();
+        System.out.println("NumFree: " + free);
 
         // place random fields on random spots.
+        if(myWorld.getNumFree() > 1) {
+            for (int c = 0; c < 2; c++) {
+                int randI = randInt(0, 7);
+                int randJ = randInt(0, 8);
 
-        for (int c = 0; c < 2; c++) {
-            int randI = randInt(0, 7);
-            int randJ = randInt(0, 8);
-
-            if (myWorld.getGameObject(randI, randJ).getType() == GameObject.FieldType.EMPTY) {
-                myWorld.setGameObject(randI, randJ, myWorld.nextRandomType(c));
-                int match = myWorld.checkMatches();
-                handleMatch(match, i, j);
-            } else {
-                c = c-1;
-            }
-
-            if(myWorld.getNumFree() < 3) {
-                myWorld.gameOver();
-                c = 2;
+                if (myWorld.getGameObject(randI, randJ).getType() == GameObject.FieldType.EMPTY) {
+                    myWorld.setGameObject(randI, randJ, myWorld.nextRandomType(c));
+                    int match = myWorld.checkMatches();
+                    handleMatch(match, randI, randJ);
+                } else {
+                    c = c - 1;
+                }
             }
         }
+
+        myWorld.checkFreeTiles();
+        free = myWorld.getNumFree();
+        System.out.println("NumFree after rand: " + free);
 
         myWorld.calculateNextRandoms();
-
-        if (myWorld.getNumFree() < 3) {
-            myWorld.initializeField();
-        }
-
 
         return true;
     }

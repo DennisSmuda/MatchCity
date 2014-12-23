@@ -73,6 +73,9 @@ public class GameWorld {
         gameField = new GameObject[8][9];
         initializeField();
 
+        checkFreeTiles();
+        System.out.println("FreeTiles: " + getNumFree());
+
         currentState = GameState.READY;
 
     }
@@ -129,51 +132,39 @@ public class GameWorld {
         switch (type) {
             case 0:
                 gameField[i][j] = new EmptyField(i, j);
-                freeTiles++;
                 break;
             case 1:
                 gameField[i][j] = new Housing(i, j);
-                freeTiles--;
                 break;
             case 2:
                 gameField[i][j] = new Farm(i, j);
-                freeTiles--;
                 break;
             case 3:
                 gameField[i][j] = new Road(i, j);
-                freeTiles--;
                 break;
             case 4:
                 gameField[i][j] = new Government(i, j);
-                freeTiles--;
                 break;
             case 5:
                 gameField[i][j] = new Park(i, j);
-                freeTiles--;
                 break;
             case 6:
                 gameField[i][j] = new Shops(i,j);
-                freeTiles--;
                 break;
             case 7:
                 gameField[i][j] = new Power(i, j);
-                freeTiles--;
                 break;
             case 8:
                 gameField[i][j] = new Industry(i, j);
-                freeTiles--;
                 break;
             case 9:
                 gameField[i][j] = new Special(i, j);
-                freeTiles--;
                 break;
             case 10:
                 gameField[i][j] = new Trash(i, j);
-                freeTiles--;
                 break;
             case 11:
                 gameField[i][j] = new City(i, j);
-                freeTiles--;
                 break;
             default:
                 break;
@@ -238,6 +229,21 @@ public class GameWorld {
 
     public boolean getMaxRoadB() {
         return (roadsOnField == maxRoads);
+    }
+
+    public void checkFreeTiles() {
+        freeTiles = 0;
+        int emptyFields = 0;
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (getGameObject(i, j).getType() == GameObject.FieldType.EMPTY) {
+                    freeTiles++;
+                }
+            }
+        }
+
+        System.out.println("empty fields: " + freeTiles);
     }
 
 
