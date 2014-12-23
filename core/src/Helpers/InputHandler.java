@@ -162,7 +162,7 @@ public class InputHandler implements InputProcessor {
 
         myWorld.checkFreeTiles();
         free = myWorld.getNumFree();
-        System.out.println("NumFree after rand: " + free);
+
 
         myWorld.calculateNextRandoms();
 
