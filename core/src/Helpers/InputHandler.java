@@ -839,13 +839,18 @@ public class InputHandler implements InputProcessor {
         currenSelect.x = i;
         currenSelect.y = j;
 
-        // place random fields on random spots.
-        //int randI = randInt(0, 7);
-        //int randJ = randInt(0, 8);
+        int randomPlaced = 0;
 
-        //if (myWorld.getGameObject(randI, randJ).getType() == GameObject.FieldType.EMPTY) {
-        //    myWorld.setGameObject(randI, randJ, myWorld.nextRandomType(1));
-        //}
+        // place random fields on random spots.
+
+        for (int c = 0; c < 5; c++) {
+            int randI = randInt(0, 7);
+            int randJ = randInt(0, 8);
+
+            if (myWorld.getGameObject(randI, randJ).getType() == GameObject.FieldType.EMPTY) {
+                myWorld.setGameObject(randI, randJ, myWorld.nextRandomType(0));
+            }
+        }
 
         return true;
     }
