@@ -1,5 +1,6 @@
 package GameWorld;
 
+
 import GameObjects.*;
 import Helpers.InputHandler;
 import Helpers.ResourceHandler;
@@ -27,11 +28,11 @@ public class GameWorld {
     private int firstHTile = -1;
     private int firstVTile = -1;
 
-    private int midPointY;
+    private int freeTiles;
 
     private GameState currentState;
     public enum GameState {
-        READY, RUNNING
+        READY, RUNNING, GAMEOVER
 
     }
 
@@ -57,6 +58,8 @@ public class GameWorld {
         nextThree = new int[3];
         nextRandoms = new int[5];
 
+        freeTiles = 72;
+
         // First three
         for (int i = 0; i < 3; i++) {
             nextThree[i] = randInt(1, 11);
@@ -66,26 +69,9 @@ public class GameWorld {
             nextRandoms[i] = randInt(1, 11);
         }
 
-        gameField = new GameObject[8][9];
-
-
         // Initialize
-        for (int i = 0; i < 8; i++){
-            for(int j = 0; j < 9; j++) {
-                gameField[i][j] = new EmptyField(i, j);
-                if(randInt(1,100) < 10 && roadsOnField <= maxStartingRoads) {
-                    gameField[i][j] = new Road(i, j);
-                    addRoad();
-                }
-                if(randInt(1,100) > 93) {
-                    gameField[i][j] = new Housing(i, j);
-                }
-                if (randInt(1, 100) > 97) {
-                    gameField[i][j] = new Farm(i, j);
-                }
-            }
-        }
-
+        gameField = new GameObject[8][9];
+        initializeField();
 
         currentState = GameState.READY;
 
@@ -95,6 +81,10 @@ public class GameWorld {
         switch (currentState) {
             case READY:
                 updateReady(delta);
+                break;
+
+            case GAMEOVER:
+                updateGameOver(delta);
                 break;
 
             case RUNNING:
@@ -111,9 +101,13 @@ public class GameWorld {
     public void updateRunning(float delta) {
         if(delta > .15f) {
             delta = .15f;
-            ResourceHandler.update(delta);
-            System.out.println("handler update! " + delta);
+            //ResourceHandler.update(delta);
+            //System.out.println("handler update! " + delta);
         }
+    }
+
+    public void updateGameOver(float delta) {
+        // show restart button and stuff.
     }
 
     public void addMoney(int increment) {
@@ -124,6 +118,8 @@ public class GameWorld {
 
     public void start() { currentState = GameState.RUNNING; }
 
+    public void gameOver() { currentState = GameState.GAMEOVER;}
+
 
     public GameObject getGameObject(int i, int j) {
         return gameField[i][j];
@@ -133,39 +129,51 @@ public class GameWorld {
         switch (type) {
             case 0:
                 gameField[i][j] = new EmptyField(i, j);
+                freeTiles++;
                 break;
             case 1:
                 gameField[i][j] = new Housing(i, j);
+                freeTiles--;
                 break;
             case 2:
                 gameField[i][j] = new Farm(i, j);
+                freeTiles--;
                 break;
             case 3:
                 gameField[i][j] = new Road(i, j);
+                freeTiles--;
                 break;
             case 4:
                 gameField[i][j] = new Government(i, j);
+                freeTiles--;
                 break;
             case 5:
                 gameField[i][j] = new Park(i, j);
+                freeTiles--;
                 break;
             case 6:
                 gameField[i][j] = new Shops(i,j);
+                freeTiles--;
                 break;
             case 7:
                 gameField[i][j] = new Power(i, j);
+                freeTiles--;
                 break;
             case 8:
                 gameField[i][j] = new Industry(i, j);
+                freeTiles--;
                 break;
             case 9:
                 gameField[i][j] = new Special(i, j);
+                freeTiles--;
                 break;
             case 10:
                 gameField[i][j] = new Trash(i, j);
+                freeTiles--;
                 break;
             case 11:
                 gameField[i][j] = new City(i, j);
+                freeTiles--;
                 break;
             default:
                 break;
@@ -315,35 +323,10 @@ public class GameWorld {
         nextRandoms[3] = randInt(1, 11);
         nextRandoms[4] = randInt(1, 11);
 
-        int next = randInt(1, 100);
-        if (next < 20) {
-            nextThree[2] = 1; // house
-        } else if (next < 40) {
-            nextThree[2] = 2; // farm
-        } else if (next < 50 && getMaxRoadB()) {
-            nextThree[2] = 3; // road
-        } else if (next < 60) {
-            nextThree[2] = 7; // power
-        } else if (next < 70) {
-            nextThree[2] = 10; // trash
-        } else if (next < 75) {
-            nextThree[2] = 5; // park
-        } else if (next < 80) {
-            nextThree[2] = 8; // industry
-        } else if (next < 85) {
-            nextThree[2] = 6; // shops
-        } else if(next < 90) {
-            nextThree[2] = 11; // CITY
-        } else if (next < 95) {
-            nextThree[2] = 9;
-        } else {
-            nextThree[2] = 2;
-        }
-
         // Todo: Debug all housing spawn
-        //nextThree[0] = 1;
-        //nextThree[1] = 1;
-        //nextThree[2] = 1;
+        //nextRandoms[0] = 1;
+        //nextRandoms[1] = 1;
+        //nextRandoms[2] = 1;
 
     }
 
@@ -351,6 +334,26 @@ public class GameWorld {
         return nextRandoms[i];
     }
 
+    public int getNumFree() {
+        return freeTiles;
+    }
 
+    public void initializeField() {
 
+        for (int i = 0; i < 8; i++){
+            for(int j = 0; j < 9; j++) {
+                gameField[i][j] = new EmptyField(i, j);
+                if(randInt(1,100) < 10 && roadsOnField <= maxStartingRoads) {
+                    gameField[i][j] = new Road(i, j);
+                    addRoad();
+                }
+                if(randInt(1,100) > 93) {
+                    gameField[i][j] = new Housing(i, j);
+                }
+                if (randInt(1, 100) > 97) {
+                    gameField[i][j] = new Farm(i, j);
+                }
+            }
+        }
+    }
 }

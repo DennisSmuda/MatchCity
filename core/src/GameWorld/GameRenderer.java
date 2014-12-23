@@ -157,60 +157,61 @@ public class GameRenderer {
 
     private void drawInfo() {
 
-
-        levelString = levelInt.toString();
-        AssetLoader.pixelInfo.setColor(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1f);
-        AssetLoader.pixelInfo.setScale(.15f, -.15f);
-        AssetLoader.pixelInfo.draw(batcher, "Citizens: " + ResourceHandler.citizens, 5, 174);
-        AssetLoader.pixelInfo.draw(batcher, "Food: " + ResourceHandler.food, 5, 184);
+        //levelString = levelInt.toString();
+       // AssetLoader.pixelInfo.setColor(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1f);
+        //AssetLoader.pixelInfo.setScale(.15f, -.15f);
+        //AssetLoader.pixelInfo.draw(batcher, "Citizens: " + ResourceHandler.citizens, 5, 174);
+        //AssetLoader.pixelInfo.draw(batcher, "Food: " + ResourceHandler.food, 5, 184);
     }
 
     private void drawNextTile() {
 
-        AssetLoader.pixelInfo.draw(batcher, "Next tile: ", 60, 5);
-        AssetLoader.pixelInfo.draw(batcher, "Random tiles: ", 60, 15);
+        AssetLoader.pixelInfo.setColor(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 1f);
+        AssetLoader.pixelInfo.setScale(.15f, -.15f);
+        AssetLoader.pixelInfo.draw(batcher, "Next: ", 5, 175);
+        AssetLoader.pixelInfo.draw(batcher, "Random: ", 50, 175);
 
 
         AssetLoader.font.setScale(.2f, -.2f);
         AssetLoader.shadow.setScale(.2f, -.2f);
 
-        int x = 100;
-        int y = 3;
-        // draw next three elements
+        int x = 25;
+        int y = 173;
+        // draw next element
         for (int i = 0; i < 1; i++) {
             switch (myWorld.nextThree[i]) {
                 case 1:
-                    batcher.draw(housing, x, y, 8, 8);
+                    batcher.draw(housing, x, y, 12, 12);
                     break;
                 case 2:
-                    batcher.draw(farm, x, y, 8, 8);
+                    batcher.draw(farm, x, y, 12, 12);
                     break;
                 case 3:
-                    batcher.draw(road, x, y, 8, 8);
+                    batcher.draw(road, x, y, 12, 12);
                     break;
                 case 4:
-                    batcher.draw(government, x, y, 8, 8);
+                    batcher.draw(government, x, y, 12, 12);
                     break;
                 case 5:
-                    batcher.draw(park, x, y, 8, 8);
+                    batcher.draw(park, x, y, 12, 12);
                     break;
                 case 6:
-                    batcher.draw(shops, x, y, 8, 8);
+                    batcher.draw(shops, x, y, 12, 12);
                     break;
                 case 7:
-                    batcher.draw(power, x, y, 8, 8);
+                    batcher.draw(power, x, y, 12, 12);
                     break;
                 case 8:
-                    batcher.draw(industry, x, y, 8, 8);
+                    batcher.draw(industry, x, y, 12, 12);
                     break;
                 case 9:
-                    batcher.draw(special, x, y, 8, 8);
+                    batcher.draw(special, x, y, 12, 12);
                     break;
                 case 10:
-                    batcher.draw(trash, x, y, 8, 8);
+                    batcher.draw(trash, x, y, 12, 12);
                     break;
                 case 11:
-                    batcher.draw(city, x, y, 8, 8);
+                    batcher.draw(city, x, y, 12, 12);
                     break;
 
                 default:
@@ -219,10 +220,10 @@ public class GameRenderer {
             x += 10;
         }
 
-        x = 100;
-        y = 13;
+        x = 75;
+        y = 173;
         // draw next random elements
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 2; i++) {
             switch (myWorld.nextRandoms[i]) {
                 case 1:
                     batcher.draw(housing, x, y, 8, 8);
@@ -261,7 +262,7 @@ public class GameRenderer {
                 default:
                     break;
             }
-            x += 5;
+            x += 10;
             if (x >= 125) y += 10;
         }
 

@@ -58,6 +58,8 @@ public class InputHandler implements InputProcessor {
         if(screenY < barOffset ) {
             // TOPBAR PRESSED
             // Show stats or something
+            i = -1;
+            j = -1;
 
         } else if(screenY <  400) {
 
@@ -101,6 +103,8 @@ public class InputHandler implements InputProcessor {
             }
         } else if (screenY >= 167){
 
+            i = -1;
+            j = -1;
             // bottom touch
 
         }
@@ -110,7 +114,7 @@ public class InputHandler implements InputProcessor {
         nextTile = myWorld.getNext();
 
 
-        if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.EMPTY || repeatCheck == true) {
+        if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.EMPTY && i != -1 && j != -1) {
             // If the selection is empty, the next tile will be placed
             myWorld.setGameObject(i, j, nextTile);
             myWorld.calculateNextThree();
@@ -132,7 +136,7 @@ public class InputHandler implements InputProcessor {
 
         // place random fields on random spots.
 
-        for (int c = 0; c < 5; c++) {
+        for (int c = 0; c < 2; c++) {
             int randI = randInt(0, 7);
             int randJ = randInt(0, 8);
 
@@ -140,8 +144,22 @@ public class InputHandler implements InputProcessor {
                 myWorld.setGameObject(randI, randJ, myWorld.nextRandomType(c));
                 int match = myWorld.checkMatches();
                 handleMatch(match, i, j);
+            } else {
+                c = c-1;
+            }
+
+            if(myWorld.getNumFree() < 3) {
+                myWorld.gameOver();
+                c = 2;
             }
         }
+
+        myWorld.calculateNextRandoms();
+
+        if (myWorld.getNumFree() < 3) {
+            myWorld.initializeField();
+        }
+
 
         return true;
     }
@@ -505,13 +523,13 @@ public class InputHandler implements InputProcessor {
                     }
                 }
 
-                if (i < 7) {
+                if (i > 0) {
                     // check reverse L
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
                         myWorld.setGameObject(i-1, j, 0);
 
-                        if (i < 6) { // check half cross
+                        if (i > 1) { // check half cross
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i - 2, j).getLevel();
                                 myWorld.setGameObject(i - 2, j, 0);
