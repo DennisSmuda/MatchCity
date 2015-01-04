@@ -11,6 +11,7 @@ import java.util.Random;
 public class GameWorld {
 
     public int nextThree[];
+    public int nextRands[];
 
     public GameObject[][] gameField;
 
@@ -37,6 +38,12 @@ public class GameWorld {
         nextThree = new int[3];
         for (int i = 0; i < 3; i++) {
             nextThree[i] = randInt(1, 4);
+        }
+
+        // Todo: number of random spawning tiles can be tied to difficulty
+        nextRands = new int[5];
+        for (int i = 0; i < 5; i++) {
+            nextRands[i] = randInt(1, 4);
         }
 
         gameField = new GameObject[8][9];
@@ -162,6 +169,14 @@ public class GameWorld {
 
     }
 
+    public void calculateNextRands() {
+        nextRands[0] = randInt(1, 11);
+        nextRands[1] = randInt(1, 11);
+        nextRands[2] = randInt(1, 11);
+        nextRands[3] = randInt(1, 11);
+        nextRands[4] = randInt(1, 11);
+    }
+
     public int getNext() {
         return nextThree[0];
     }
@@ -233,6 +248,10 @@ public class GameWorld {
         // todo: maybe check for tetromino shapes?!
         // no match found
         return 0;
+    }
+
+    public int getNextRand(int i) {
+        return nextRands[i];
     }
 
     public int getFirstHTile() { return firstHTile; }

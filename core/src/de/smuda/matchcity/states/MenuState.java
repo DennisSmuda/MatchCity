@@ -76,7 +76,7 @@ public class MenuState extends State {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         //Draw Background Topbar
-        shapeRenderer.setColor(49 / 255.0f, 198 / 255.0f, 122 / 255.0f, 1);
+        shapeRenderer.setColor(120 / 255.0f, 145 / 255.0f, 60 / 255.0f, 1);
         shapeRenderer.rect(0, +100, MatchCity.WIDTH, MatchCity.HEIGHT + 150);
         shapeRenderer.end();
 

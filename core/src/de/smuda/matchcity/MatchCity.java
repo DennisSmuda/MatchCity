@@ -27,7 +27,7 @@ public class MatchCity extends Game {
 	@Override
 	public void create () {
 
-		Gdx.gl.glClearColor(49 / 255.0f, 198 / 255.0f, 122 / 255.0f, 1);
+		Gdx.gl.glClearColor(120 / 255.0f, 245 / 255.0f, 60 / 255.0f, 1);
 
 		res = new Content();
 		res.loadAtlas("pack.pack", "pack");

@@ -32,6 +32,9 @@ public class PlayState extends State {
     private String levelString = "";
     private Integer levelInt;
     private static int lvlIncrease;
+    private int turnsUntilSpawn = 5;
+    private int freeTiles = 72;
+    private int randI, randJ;
 
     private boolean selected = false;
 
@@ -153,6 +156,7 @@ public class PlayState extends State {
 
             // Checked the position of the touchDown event - need to handle.
             nextTile = myWorld.getNext();
+
             if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.EMPTY) {
                 // If the selection is empty, the next tile will be placed
                 myWorld.setGameObject(i, j, nextTile);
@@ -163,667 +167,42 @@ public class PlayState extends State {
                 int match = myWorld.checkMatches();
                 int currentTile = (j*8) + i;
 
-                if(match == 1) {
-                    System.out.println("match = 1");
-                    // hmatch:
-                    // i,j is current element getFirstVTile/HTile gets first element from three queue
-                    if (currentTile == myWorld.getFirstHTile()) {
+                handleMatches(match, currentTile, i, j);
 
-                        lvlIncrease += myWorld.getGameObject(i+1, j).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i+2, j).getLevel();
+            } else { // Tile is occupied - no action
 
-                        if (j > 0) { // check for big right rotatet L
-                            if(myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j-1).getType() ){
-                                lvlIncrease += myWorld.gameField[i][j-1].getLevel();
-                                myWorld.setGameObject(i, j - 1, 0);
+            }
 
-                            }
-                        }
+            int match = myWorld.checkMatches();
+            int currentTile = (j*8) + i;
+            handleMatches(match, currentTile, i, j);
 
-                        if(j  < 8) {
-                            // check downwards lying L
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
-                                lvlIncrease += myWorld.gameField[i][j + 1].getLevel();
-                                myWorld.setGameObject(i, j + 1, 0);
+            turnsUntilSpawn-- ;
+            if (turnsUntilSpawn == 0 && freeTiles >= 4) {
+                turnsUntilSpawn = 5;
+                // spawn random fields
+                for (int n = 0; n < 3; n++) {
+                    randI = myWorld.randInt(0, 7);
+                    randJ = myWorld.randInt(0, 8);
 
-                                if (j < 7) {  // check for half cross
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
-                                        myWorld.setGameObject(i, j + 2, 0);
-                                    }
-                                }
-                            }
-                        }
+                    if (myWorld.getGameObject(randI, randJ).getType() == GameObject.FieldType.EMPTY) {
+                        myWorld.setGameObject(randI, randJ, myWorld.getNextRand(n));
+                        match = myWorld.checkMatches();
+                        currentTile = (j*8) + i;
+                        handleMatches(match, currentTile, randI, randJ);
 
-                        // current tile is first htile
-                        myWorld.setGameObject(i+1, j, 0);
-                        myWorld.setGameObject(i+2, j, 0);
-                        // check if upwards T
-
-                        myWorld.resetVHTile();
-
-                        // Levels are added together
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-
-                    } else if (currentTile == (myWorld.getFirstHTile()+1)) {
-
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
-
-
-                        if (j > 0) {
-                            // check for upwardw pointing "T"
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
-                                myWorld.setGameObject(i, j - 1, 0);
-
-                                if (j > 1) {
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 2).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
-                                        myWorld.setGameObject(i, j - 2, 0);
-                                    }
-                                }
-
-                            }
-                            // check lying L
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j - 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();
-                                myWorld.setGameObject(i + 1, j - 1, 0);
-                            }
-                            // check reverse lying L
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j - 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i - 1, j - 1).getLevel();
-                                myWorld.setGameObject(i - 1, j - 1, 0);
-                            }
-                        }
-
-                        if (j  < 8) {
-                            // Check for normal T
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
-                                myWorld.setGameObject(i, j + 1, 0);
-                                System.out.println("small T");
-
-                                if (j < 7) { // chekc for big T
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
-                                        myWorld.setGameObject(i, j + 2, 0);
-                                        System.out.println("big T");
-                                    }
-                                }
-                            }
-
-                            // check for downwards lying L
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j + 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
-                                myWorld.setGameObject(i + 1, j + 1, 0);
-                            }
-                            // check downwards reverse lying L
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
-                                myWorld.setGameObject(i - 1, j + 1, 0);
-                            }
-                        }
-
-                        if (i < 6) {
-                            // check four in a row
-                            if(myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
-                                myWorld.setGameObject(i + 2, j, 0);
-
-                            }
-                        }
-
-                        // current tile is second htile
-                        myWorld.setGameObject(i - 1, j, 0);
-                        myWorld.setGameObject(i + 1, j, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-
-                    } else if (currentTile == (myWorld.getFirstHTile()+2)) {
-                        // current tile is last htile
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i-2, j).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
-
-
-                        if(j > 0) {
-                            // check for upwards lying L
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 1).getType() ) {
-                                lvlIncrease += myWorld.getGameObject(i , j - 1).getLevel();
-                                myWorld.setGameObject(i, j - 1, 0);
-
-                                if (j > 1) { // check double upwards
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 2).getType() ) {
-                                        lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
-                                        myWorld.setGameObject(i, j - 2, 0);
-                                    }
-                                }
-                            }
-                        }
-
-                        if(j < 8) {
-                            // check for downwards lying L
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
-                                myWorld.setGameObject(i, j + 1, 0);
-                                System.out.println("downwardsLcheck");
-
-                                if (j < 7) {// _
-                                    // check    | shape
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
-                                        myWorld.setGameObject(i, j + 2, 0);
-                                        System.out.println("Crosscheck");
-                                    }
-                                }
-                            }
-                        }
-
-                        if (i < 7) {
-                            // check 4 in a row
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1 , j).getType() ) {
-                                lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
-                                myWorld.setGameObject(i + 1, j, 0);
-                                System.out.println("4 in row");
-
-                                if (i < 6) {
-                                    // check 5 in a row
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
-                                        myWorld.setGameObject(i + 2, j, 0);
-                                        System.out.println("5 in row");
-                                    }
-                                }
-                            }
-                        }
-                        myWorld.setGameObject(i-2, j, 0);
-                        myWorld.setGameObject(i-1, j, 0);
-
-                        myWorld.getGameObject(i,j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-
-                        myWorld.resetVHTile();
-
+                    } else {
+                        n--;
                     }
 
-                } else if (match == 2) {
-                    // vmatch
-                    if (currentTile == myWorld.getFirstVTile()) {
-                        // current tile is first htile
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i, j+2).getLevel();
-
-                        if (i > 0) {
-                            // check upward standing L pointing left
-                            if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i-1,j).getType()){
-                                lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
-                                myWorld.setGameObject(i - 1, j, 0);
-                            }
-                        }
-
-                        if (i < 7) {
-                            // check  upwardstanding L pointing right
-                            if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i+1,j).getType()){
-                                lvlIncrease += myWorld.getGameObject(i+1, j).getLevel();
-                                myWorld.setGameObject(i + 1, j, 0);
-                                if (i < 6) {
-                                    if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i+2,j).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
-                                        myWorld.setGameObject(i + 2, j, 0);
-                                    }
-                                }
-                            }
-                        }
-
-                        myWorld.setGameObject(i, j+1, 0);
-                        myWorld.setGameObject(i, j+2, 0);
-
-                        myWorld.getGameObject(i,j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-
-                        myWorld.resetVHTile();
-
-                    } else if (currentTile == (myWorld.getFirstVTile()+8)) {
-                        // current tile is second htile
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i, j-1).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
-
-                        if (i > 0) {
-                            // check tripletetro to the left
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
-                                myWorld.setGameObject(i-1, j, 0);
-
-                                if (i > 1) { // check big liyng T to the right
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i - 2, j).getLevel();
-                                        myWorld.setGameObject(i - 2, j, 0);
-                                    }
-                                }
-                            }
-                            // upward L left
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j-1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i-1, j-1).getLevel();
-                                myWorld.setGameObject(i-1, j-1, 0);
-
-                                if (i > 1) { // check big liyng T to the right
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j-1).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i - 2, j - 1).getLevel();
-                                        myWorld.setGameObject(i - 2, j -1, 0);
-                                    }
-                                }
-                            }
-
-                        }
-                        if (i < 7) {
-                            // check tripletetro to the right
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i+1, j).getLevel();
-                                myWorld.setGameObject(i+1, j, 0);
-
-                                if (i < 6) { // check big liyng T to the right
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
-                                        myWorld.setGameObject(i + 2, j, 0);
-                                    }
-                                }
-                            }
-                        }
-
-                        if (j < 7) {
-                            // 4 downwards
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
-                                myWorld.setGameObject(i, j+1, 0);
-
-                                if (i < 6) { // 5 downwards
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+2).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i, j+2).getLevel();
-                                        myWorld.setGameObject(i, j+2, 0);
-                                    }
-                                }
-                            }
-
-                        }
-
-                        myWorld.setGameObject(i, j-1, 0);
-                        myWorld.setGameObject(i, j+1, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-
-                    } else if (currentTile == (myWorld.getFirstVTile()+16)) {
-                        // current tile is last htile
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i, j-2).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i, j-1).getLevel();
-
-                        if (i < 7) {
-                            // check L
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i+1, j).getLevel();
-                                myWorld.setGameObject(i+1, j, 0);
-
-                                if (i < 6) { // check big liyng T to the right
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
-                                        myWorld.setGameObject(i + 2, j, 0);
-                                    }
-                                }
-                            }
-                        }
-
-                        if (i < 7) {
-                            // check reverse L
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
-                                myWorld.setGameObject(i-1, j, 0);
-
-                                if (i < 6) { // check half cross
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i - 2, j).getLevel();
-                                        myWorld.setGameObject(i - 2, j, 0);
-                                    }
-                                }
-                            }
-                        }
-
-                        if (j < 8) {
-                            // check 4 in a row
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i, j +1 ).getLevel();
-                                myWorld.setGameObject(i, j + 1, 0);
-
-                                if (i < 7) { // check 5 in a row
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i , j +2).getLevel();
-                                        myWorld.setGameObject(i, j +2, 0);
-                                    }
-                                }
-                            }
-                        }
-
-                        myWorld.setGameObject(i, j-2, 0);
-                        myWorld.setGameObject(i, j-1, 0);
-
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-                    }
-
-                } else if (match == 3) {
-                    System.out.println("match 3");
-                    // upwards L
-                    if (currentTile == (myWorld.getFirstHTile())) {
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
-
-                        if (i > 0) {
-                            // check tetromino
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
-                                myWorld.setGameObject(i - 1, j + 1, 0);
-                                System.out.println("tetromino checku");
-                            }
-                        }
-
-                        myWorld.setGameObject(i+1,j, 0);
-                        myWorld.setGameObject(i,j+1, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-                    }
-                    if (currentTile == (myWorld.getFirstHTile() + 1)) {
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
-
-                        if (j > 0) {
-                            // tetro
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j -1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
-                                myWorld.setGameObject(i, j-1, 0);
-                                // tetro + 1
-                                if (j > 2) {
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 2).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
-                                        myWorld.setGameObject(i, j - 2, 0);
-                                    }
-                                }
-                            }
-                        }
-
-                        myWorld.setGameObject(i-1,j, 0);
-                        myWorld.setGameObject(i-1,j+1, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-                    }
-                    if (currentTile == (myWorld.getFirstHTile() + 8)) {
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();
-
-                        if (i > 0) {
-                            // tetromino check
-                            if(myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
-                                myWorld.setGameObject(i - 1, j, 0);
-                            }
-                        }
-
-
-                        myWorld.setGameObject(i,j-1, 0);
-                        myWorld.setGameObject(i+1,j-1, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-                    }
-                } else if (match == 4) {
-                    System.out.println("match 4");
-                    // reverse upwards L
-                    if (currentTile == (myWorld.getFirstHTile())) {
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i + 1, j+1).getLevel();
-
-                        myWorld.setGameObject(i+1,j, 0);
-                        myWorld.setGameObject(i+1,j+1, 0);
-
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-                    }
-                    if (currentTile == (myWorld.getFirstHTile() + 1)) {
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
-
-                        if (i < 7) {
-                            // check tetromino
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j + 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
-                                myWorld.setGameObject(i + 1, j + 1, 0);
-                            }
-                        }
-
-                        if (j < 7) {
-                            // check upwards L right
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
-                                myWorld.setGameObject(i, j + 2, 0);
-                            }
-                        }
-
-                        if (j > 0) {
-                            // check upwards
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j -1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i, j -1).getLevel();
-                                myWorld.setGameObject(i, j -1, 0);
-                                // one more up
-                                if (j > 1) {
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j -2).getType() ) {
-                                        lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
-                                        myWorld.setGameObject(i, j - 2, 0);
-                                    }
-                                }
-                            }
-
-                        }
-
-                        myWorld.setGameObject(i-1,j, 0);
-                        myWorld.setGameObject(i,j+1, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-                    }
-                    if (currentTile == (myWorld.getFirstHTile() + 8 + 1)) {
-
-                        lvlIncrease = 0;
-                        lvlIncrease += myWorld.getGameObject(i - 1, j - 1).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
-
-                        if(i < 7) {
-                            // check tetro
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
-                                myWorld.setGameObject(i + 1, j, 0);
-                            }
-                        }
-
-                        myWorld.setGameObject(i-1,j-1, 0);
-                        myWorld.setGameObject(i,j-1, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-
-                    }
-                } else if (match == 5) {
-                    System.out.println("match 5");
-                    // reverse L
-                    if (currentTile == (myWorld.getFirstVTile())) {
-
-                        lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
-
-                        if (i < 7) {
-                            // tetro check
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
-                                myWorld.setGameObject(i + 1, j, 0);
-                            }
-                        }
-
-                        myWorld.setGameObject(i,j+1, 0);
-                        myWorld.setGameObject(i-1,j+1, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-                    }
-                    if (currentTile == (myWorld.getFirstVTile() + 8)) {
-
-                        lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
-
-                        if (i < 7) {
-                            // tetro check
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j - 1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i + 1, j -1 ).getLevel();
-                                myWorld.setGameObject(i + 1, j - 1, 0);
-                            }
-                        }
-
-
-                        myWorld.setGameObject(i,j-1, 0);
-                        myWorld.setGameObject(i-1,j, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-                    }
-                    if (currentTile == (myWorld.getFirstVTile() + 8 - 1)) {
-
-                        lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();
-
-                        myWorld.setGameObject(i+1,j, 0);
-                        myWorld.setGameObject(i+1,j-1, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-
-                    }
-                } else if (match == 6) {
-                    System.out.println("match 6");
-                    // normal small L
-                    if (currentTile == (myWorld.getFirstVTile())) {
-
-                        lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
-
-                        if (i > 0) {
-                            // tetro check
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
-                                myWorld.setGameObject(i - 1, j, 0);
-                            }
-                        }
-
-                        myWorld.setGameObject(i,j+1, 0);
-                        myWorld.setGameObject(i+1,j+1, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-
-                    }
-                    if (currentTile == (myWorld.getFirstVTile() + 8)) {
-
-                        lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
-
-                        if (j < 8) {
-                            // downward tetro
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j+1).getType() ) {
-                                lvlIncrease += myWorld.getGameObject(i+ 1, j+1).getLevel();
-                                myWorld.setGameObject(i + 1, j + 1, 0);
-                            }
-                        }
-
-                        if (i < 6) {
-                            // Lying L
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i+ 2, j).getLevel();
-                                myWorld.setGameObject(i + 2, j, 0);
-                            }
-                        }
-
-                        myWorld.setGameObject(i,j-1, 0);
-                        myWorld.setGameObject(i+1,j, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-                    }
-                    if (currentTile == (myWorld.getFirstVTile() + 8 + 1)) {
-
-                        lvlIncrease += myWorld.getGameObject(i - 1, j ).getLevel();
-                        lvlIncrease += myWorld.getGameObject(i - 1, j - 1).getLevel();
-
-                        if (j < 8) {
-                            // downward tetro
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+1).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
-                                myWorld.setGameObject(i, j + 1, 0);
-                            }
-                        }
-
-                        if (i < 7) {
-                            // check three in row upward L shape
-                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j).getType()) {
-                                lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
-                                myWorld.setGameObject(i + 1, j, 0);
-                                if (i < 6) {
-                                    // four in row upward L lying
-                                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
-                                        lvlIncrease += myWorld.getGameObject(i+2, j).getLevel();
-                                        myWorld.setGameObject(i+2, j, 0);
-                                    }
-                                }
-                            }
-                        }
-
-
-                        myWorld.setGameObject(i-1,j, 0);
-                        myWorld.setGameObject(i-1,j-1, 0);
-
-                        myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                        myWorld.addMoney(lvlIncrease * 10);
-                        myWorld.resetVHTile();
-                    }
                 }
 
+                myWorld.calculateNextRands();
+
             } else {
-                //myWorld.checkMatches();
+                // game over
             }
+
         }
     }
 
@@ -945,18 +324,16 @@ public class PlayState extends State {
     }
 
     private void drawBottom() {
-        AssetLoader.font.setScale(.1f, -.1f);
-        AssetLoader.shadow.setScale(.1f, -.1f);
-        AssetLoader.shadow.draw(batcher, "Next tile: ", 5, 181);
-        AssetLoader.font.draw(batcher, "Next tile: ", 4, 180);
 
-        AssetLoader.font.setScale(.2f, -.2f);
-        AssetLoader.shadow.setScale(.2f, -.2f);
+        AssetLoader.text.setScale(0.15f, -0.15f);
+        AssetLoader.text.draw(batcher, "Next Tile: ", 5, 175);
+        AssetLoader.text.draw(batcher, "Turns until Spawn: " + turnsUntilSpawn, 5, 185);
+        AssetLoader.text.draw(batcher, "Next Rand: ", 65, 175);
 
-        int x = 45;
-        int y = 178;
-        // draw next three elements
-        for (int i = 0; i < 3; i++) {
+        int x = 37;
+        int y = 172;
+        // draw next element
+        for (int i = 0; i < 1; i++) {
             switch (myWorld.nextThree[i]) {
                 case 1:
                     batcher.draw(housing, x, y, 8, 8);
@@ -997,6 +374,57 @@ public class PlayState extends State {
             }
             x += 10;
         }
+
+        x = 97;
+        y = 172;
+        // draw next rand element
+        for (int i = 0; i < 3; i++) {
+            switch (myWorld.nextRands[i]) {
+                case 1:
+                    batcher.draw(housing, x, y, 8, 8);
+                    break;
+                case 2:
+                    batcher.draw(farm, x, y, 8, 8);
+                    break;
+                case 3:
+                    batcher.draw(road, x, y, 8, 8);
+                    break;
+                case 4:
+                    batcher.draw(government, x, y, 8, 8);
+                    break;
+                case 5:
+                    batcher.draw(park, x, y, 8, 8);
+                    break;
+                case 6:
+                    batcher.draw(shops, x, y, 8, 8);
+                    break;
+                case 7:
+                    batcher.draw(power, x, y, 8, 8);
+                    break;
+                case 8:
+                    batcher.draw(industry, x, y, 8, 8);
+                    break;
+                case 9:
+                    batcher.draw(special, x, y, 8, 8);
+                    break;
+                case 10:
+                    batcher.draw(trash, x, y, 8, 8);
+                    break;
+                case 11:
+                    batcher.draw(city, x, y, 8, 8);
+                    break;
+
+                default:
+                    break;
+            }
+            x += 10;
+            if (x >= 120) {
+                y += 10;
+                x = 97;
+            }
+        }
+
+
     }
 
     private void drawEmpty(int i,int j) {
@@ -1135,6 +563,683 @@ public class PlayState extends State {
 
     private int scaleY(int screenY) {
         return (int) (screenY / scaleFactorY);
+    }
+
+    private void handleMatches(int match, int currentTile, int i, int j) {
+
+
+        if(match == 1) {
+            System.out.println("match = 1");
+            // hmatch:
+            // i,j is current element getFirstVTile/HTile gets first element from three queue
+            if (currentTile == myWorld.getFirstHTile()) {
+
+                lvlIncrease += myWorld.getGameObject(i+1, j).getLevel();
+                lvlIncrease += myWorld.getGameObject(i+2, j).getLevel();
+
+                if (j > 0) { // check for big right rotatet L
+                    if(myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j-1).getType() ){
+                        lvlIncrease += myWorld.gameField[i][j-1].getLevel();
+                        myWorld.setGameObject(i, j - 1, 0);
+
+                    }
+                }
+
+                if(j  < 8) {
+                    // check downwards lying L
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
+                        lvlIncrease += myWorld.gameField[i][j + 1].getLevel();
+                        myWorld.setGameObject(i, j + 1, 0);
+
+                        if (j < 7) {  // check for half cross
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
+                                myWorld.setGameObject(i, j + 2, 0);
+                            }
+                        }
+                    }
+                }
+
+                // current tile is first htile
+                myWorld.setGameObject(i+1, j, 0);
+                myWorld.setGameObject(i+2, j, 0);
+                // check if upwards T
+
+                myWorld.resetVHTile();
+
+                // Levels are added together
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+
+            } else if (currentTile == (myWorld.getFirstHTile()+1)) {
+
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
+                lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
+
+
+                if (j > 0) {
+                    // check for upwardw pointing "T"
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
+                        myWorld.setGameObject(i, j - 1, 0);
+
+                        if (j > 1) {
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 2).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
+                                myWorld.setGameObject(i, j - 2, 0);
+                            }
+                        }
+
+                    }
+                    // check lying L
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j - 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();
+                        myWorld.setGameObject(i + 1, j - 1, 0);
+                    }
+                    // check reverse lying L
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j - 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i - 1, j - 1).getLevel();
+                        myWorld.setGameObject(i - 1, j - 1, 0);
+                    }
+                }
+
+                if (j  < 8) {
+                    // Check for normal T
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
+                        myWorld.setGameObject(i, j + 1, 0);
+                        System.out.println("small T");
+
+                        if (j < 7) { // chekc for big T
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
+                                myWorld.setGameObject(i, j + 2, 0);
+                                System.out.println("big T");
+                            }
+                        }
+                    }
+
+                    // check for downwards lying L
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j + 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
+                        myWorld.setGameObject(i + 1, j + 1, 0);
+                    }
+                    // check downwards reverse lying L
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
+                        myWorld.setGameObject(i - 1, j + 1, 0);
+                    }
+                }
+
+                if (i < 6) {
+                    // check four in a row
+                    if(myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
+                        myWorld.setGameObject(i + 2, j, 0);
+
+                    }
+                }
+
+                // current tile is second htile
+                myWorld.setGameObject(i - 1, j, 0);
+                myWorld.setGameObject(i + 1, j, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+
+            } else if (currentTile == (myWorld.getFirstHTile()+2)) {
+                // current tile is last htile
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i-2, j).getLevel();
+                lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
+
+
+                if(j > 0) {
+                    // check for upwards lying L
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 1).getType() ) {
+                        lvlIncrease += myWorld.getGameObject(i , j - 1).getLevel();
+                        myWorld.setGameObject(i, j - 1, 0);
+
+                        if (j > 1) { // check double upwards
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 2).getType() ) {
+                                lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
+                                myWorld.setGameObject(i, j - 2, 0);
+                            }
+                        }
+                    }
+                }
+
+                if(j < 8) {
+                    // check for downwards lying L
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
+                        myWorld.setGameObject(i, j + 1, 0);
+                        System.out.println("downwardsLcheck");
+
+                        if (j < 7) {// _
+                            // check    | shape
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
+                                myWorld.setGameObject(i, j + 2, 0);
+                                System.out.println("Crosscheck");
+                            }
+                        }
+                    }
+                }
+
+                if (i < 7) {
+                    // check 4 in a row
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1 , j).getType() ) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
+                        myWorld.setGameObject(i + 1, j, 0);
+                        System.out.println("4 in row");
+
+                        if (i < 6) {
+                            // check 5 in a row
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
+                                myWorld.setGameObject(i + 2, j, 0);
+                                System.out.println("5 in row");
+                            }
+                        }
+                    }
+                }
+                myWorld.setGameObject(i-2, j, 0);
+                myWorld.setGameObject(i-1, j, 0);
+
+                myWorld.getGameObject(i,j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+
+                myWorld.resetVHTile();
+
+            }
+
+        } else if (match == 2) {
+            System.out.println("match = 2");
+            // vmatch
+            if (currentTile == myWorld.getFirstVTile()) {
+                // current tile is first htile
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
+                lvlIncrease += myWorld.getGameObject(i, j+2).getLevel();
+
+                if (i > 0) {
+                    // check upward standing L pointing left
+                    if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i-1,j).getType()){
+                        lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
+                        myWorld.setGameObject(i - 1, j, 0);
+                    }
+                }
+
+                if (i < 7) {
+                    // check  upwardstanding L pointing right
+                    if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i+1,j).getType()){
+                        lvlIncrease += myWorld.getGameObject(i+1, j).getLevel();
+                        myWorld.setGameObject(i + 1, j, 0);
+                        if (i < 6) {
+                            if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i+2,j).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
+                                myWorld.setGameObject(i + 2, j, 0);
+                            }
+                        }
+                    }
+                }
+
+                myWorld.setGameObject(i, j+1, 0);
+                myWorld.setGameObject(i, j+2, 0);
+
+                myWorld.getGameObject(i,j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+
+                myWorld.resetVHTile();
+
+            } else if (currentTile == (myWorld.getFirstVTile()+8)) {
+                // current tile is second htile
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i, j-1).getLevel();
+                lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
+
+                if (i > 0) {
+                    // check tripletetro to the left
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
+                        myWorld.setGameObject(i-1, j, 0);
+
+                        if (i > 1) { // check big liyng T to the right
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i - 2, j).getLevel();
+                                myWorld.setGameObject(i - 2, j, 0);
+                            }
+                        }
+                    }
+                    // upward L left
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j-1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i-1, j-1).getLevel();
+                        myWorld.setGameObject(i-1, j-1, 0);
+
+                        if (i > 1) { // check big liyng T to the right
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j-1).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i - 2, j - 1).getLevel();
+                                myWorld.setGameObject(i - 2, j -1, 0);
+                            }
+                        }
+                    }
+
+                }
+                if (i < 7) {
+                    // check tripletetro to the right
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i+1, j).getLevel();
+                        myWorld.setGameObject(i+1, j, 0);
+
+                        if (i < 6) { // check big liyng T to the right
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
+                                myWorld.setGameObject(i + 2, j, 0);
+                            }
+                        }
+                    }
+
+                    // Standin L to the right
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j-1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j-1).getLevel();
+                        myWorld.setGameObject(i + 1, j-1, 0);
+
+                        if (i < 6) { // check big standing L to the right
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j-1).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i + 2, j-1).getLevel();
+                                myWorld.setGameObject(i + 2, j-1, 0);
+                            }
+                        }
+
+                    }
+                }
+
+                if (j < 7) {
+                    // 4 downwards
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
+                        myWorld.setGameObject(i, j+1, 0);
+
+                        if (j < 6) { // 5 downwards
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+2).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i, j+2).getLevel();
+                                myWorld.setGameObject(i, j+2, 0);
+                            }
+                        }
+                    }
+
+                }
+
+                myWorld.setGameObject(i, j-1, 0);
+                myWorld.setGameObject(i, j+1, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+
+            } else if (currentTile == (myWorld.getFirstVTile()+16)) {
+                // current tile is last htile
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i, j-2).getLevel();
+                lvlIncrease += myWorld.getGameObject(i, j-1).getLevel();
+
+                if (i < 7) {
+                    // check L
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i+1, j).getLevel();
+                        myWorld.setGameObject(i+1, j, 0);
+
+                        if (i < 6) { // check big liyng T to the right
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
+                                myWorld.setGameObject(i + 2, j, 0);
+                            }
+                        }
+                    }
+                }
+
+                if (i > 0) {
+                    // check reverse L
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
+                        myWorld.setGameObject(i-1, j, 0);
+
+                        if (i > 1) { // check half cross
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i - 2, j).getLevel();
+                                myWorld.setGameObject(i - 2, j, 0);
+                            }
+                        }
+                    }
+                }
+
+                if (j < 8) {
+                    // check 4 in a row
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j +1 ).getLevel();
+                        myWorld.setGameObject(i, j + 1, 0);
+
+                        if (i < 7) { // check 5 in a row
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i , j +2).getLevel();
+                                myWorld.setGameObject(i, j +2, 0);
+                            }
+                        }
+                    }
+                }
+
+                myWorld.setGameObject(i, j-2, 0);
+                myWorld.setGameObject(i, j-1, 0);
+
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+            }
+
+        } else if (match == 3) {
+            System.out.println("match 3");
+            // upwards L
+            if (currentTile == (myWorld.getFirstHTile())) {
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
+                lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
+
+                if (i > 0) {
+                    // check tetromino
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
+                        myWorld.setGameObject(i - 1, j + 1, 0);
+                        System.out.println("tetromino checku");
+                    }
+                }
+
+                myWorld.setGameObject(i+1,j, 0);
+                myWorld.setGameObject(i,j+1, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+            }
+            if (currentTile == (myWorld.getFirstHTile() + 1)) {
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
+                lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
+
+                if (j > 0) {
+                    // tetro
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j -1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
+                        myWorld.setGameObject(i, j-1, 0);
+                        // tetro + 1
+                        if (j > 2) {
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 2).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
+                                myWorld.setGameObject(i, j - 2, 0);
+                            }
+                        }
+                    }
+                }
+
+                myWorld.setGameObject(i-1,j, 0);
+                myWorld.setGameObject(i-1,j+1, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+            }
+            if (currentTile == (myWorld.getFirstHTile() + 8)) {
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
+                lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();
+
+                if (i > 0) {
+                    // tetromino check
+                    if(myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
+                        myWorld.setGameObject(i - 1, j, 0);
+                    }
+                }
+
+
+                myWorld.setGameObject(i,j-1, 0);
+                myWorld.setGameObject(i+1,j-1, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+            }
+        } else if (match == 4) {
+            System.out.println("match 4");
+            // reverse upwards L
+            if (currentTile == (myWorld.getFirstHTile())) {
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
+                lvlIncrease += myWorld.getGameObject(i + 1, j+1).getLevel();
+
+                myWorld.setGameObject(i+1,j, 0);
+                myWorld.setGameObject(i+1,j+1, 0);
+
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+            }
+            if (currentTile == (myWorld.getFirstHTile() + 1)) {
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
+                lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
+
+                if (i < 7) {
+                    // check tetromino
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j + 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
+                        myWorld.setGameObject(i + 1, j + 1, 0);
+                    }
+                }
+
+                if (j < 7) {
+                    // check upwards L right
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
+                        myWorld.setGameObject(i, j + 2, 0);
+                    }
+                }
+
+                if (j > 0) {
+                    // check upwards
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j -1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j -1).getLevel();
+                        myWorld.setGameObject(i, j -1, 0);
+                        // one more up
+                        if (j > 1) {
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j -2).getType() ) {
+                                lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
+                                myWorld.setGameObject(i, j - 2, 0);
+                            }
+                        }
+                    }
+
+                }
+
+                myWorld.setGameObject(i-1,j, 0);
+                myWorld.setGameObject(i,j+1, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+            }
+            if (currentTile == (myWorld.getFirstHTile() + 8 + 1)) {
+
+                lvlIncrease = 0;
+                lvlIncrease += myWorld.getGameObject(i - 1, j - 1).getLevel();
+                lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
+
+                if(i < 7) {
+                    // check tetro
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
+                        myWorld.setGameObject(i + 1, j, 0);
+                    }
+                }
+
+                myWorld.setGameObject(i-1,j-1, 0);
+                myWorld.setGameObject(i,j-1, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+
+            }
+        } else if (match == 5) {
+            System.out.println("match 5");
+            // reverse L
+            if (currentTile == (myWorld.getFirstVTile())) {
+
+                lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
+                lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
+
+                if (i < 7) {
+                    // tetro check
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
+                        myWorld.setGameObject(i + 1, j, 0);
+                    }
+                }
+
+                myWorld.setGameObject(i,j+1, 0);
+                myWorld.setGameObject(i-1,j+1, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+            }
+            if (currentTile == (myWorld.getFirstVTile() + 8)) {
+
+                lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
+                lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
+
+                if (i < 7) {
+                    // tetro check
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j - 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j -1 ).getLevel();
+                        myWorld.setGameObject(i + 1, j - 1, 0);
+                    }
+                }
+
+
+                myWorld.setGameObject(i,j-1, 0);
+                myWorld.setGameObject(i-1,j, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+            }
+            if (currentTile == (myWorld.getFirstVTile() + 8 - 1)) {
+
+                lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
+                lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();
+
+                myWorld.setGameObject(i+1,j, 0);
+                myWorld.setGameObject(i+1,j-1, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+
+            }
+        } else if (match == 6) {
+            System.out.println("match 6");
+            // normal small L
+            if (currentTile == (myWorld.getFirstVTile())) {
+
+                lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
+                lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
+
+                if (i > 0) {
+                    // tetro check
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
+                        myWorld.setGameObject(i - 1, j, 0);
+                    }
+                }
+
+                myWorld.setGameObject(i,j+1, 0);
+                myWorld.setGameObject(i+1,j+1, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+
+            }
+            if (currentTile == (myWorld.getFirstVTile() + 8)) {
+
+                lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
+                lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
+
+                if (j < 8) {
+                    // downward tetro
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j+1).getType() ) {
+                        lvlIncrease += myWorld.getGameObject(i+ 1, j+1).getLevel();
+                        myWorld.setGameObject(i + 1, j + 1, 0);
+                    }
+                }
+
+                if (i < 6) {
+                    // Lying L
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i+ 2, j).getLevel();
+                        myWorld.setGameObject(i + 2, j, 0);
+                    }
+                }
+
+                myWorld.setGameObject(i,j-1, 0);
+                myWorld.setGameObject(i+1,j, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+            }
+            if (currentTile == (myWorld.getFirstVTile() + 8 + 1)) {
+
+                lvlIncrease += myWorld.getGameObject(i - 1, j ).getLevel();
+                lvlIncrease += myWorld.getGameObject(i - 1, j - 1).getLevel();
+
+                if (j < 8) {
+                    // downward tetro
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
+                        myWorld.setGameObject(i, j + 1, 0);
+                    }
+                }
+
+                if (i < 7) {
+                    // check three in row upward L shape
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
+                        myWorld.setGameObject(i + 1, j, 0);
+                        if (i < 6) {
+                            // four in row upward L lying
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i+2, j).getLevel();
+                                myWorld.setGameObject(i+2, j, 0);
+                            }
+                        }
+                    }
+                }
+
+
+                myWorld.setGameObject(i-1,j, 0);
+                myWorld.setGameObject(i-1,j-1, 0);
+
+                myWorld.getGameObject(i, j).addLevel(lvlIncrease);
+                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.resetVHTile();
+            }
+        }
     }
 
 }
