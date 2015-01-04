@@ -188,7 +188,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(randI, randJ).getType() == GameObject.FieldType.EMPTY) {
                         myWorld.setGameObject(randI, randJ, myWorld.getNextRand(n));
                         match = myWorld.checkMatches();
-                        currentTile = (j*8) + i;
+                        currentTile = (randJ*8) + randI;
                         handleMatches(match, currentTile, randI, randJ);
 
                     } else {
