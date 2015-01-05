@@ -55,6 +55,9 @@ public class ScoreState extends State {
         //AssetLoader.font.setScale(.2f, .2f);
 
         image.render(sb);
+        AssetLoader.scoreText.setColor(61 / 255.0f, 138 / 255.0f, 25 / 255.0f, 1f);
+        AssetLoader.scoreText.setScale(1f, 1f);
+        AssetLoader.scoreText.draw(sb, "go again", MatchCity.WIDTH / 2 - 30, 120);
         //scoreT.render(sb);
         //goAgain.render(sb);
         sb.end();

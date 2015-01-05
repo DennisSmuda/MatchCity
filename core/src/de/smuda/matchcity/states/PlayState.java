@@ -43,6 +43,7 @@ public class PlayState extends State {
     private boolean comboBroken;
 
     private boolean selected = false;
+    public int selectI, selectJ;
 
     private int infoXOff = 5;
     private int infoYoff = 4;
@@ -333,15 +334,17 @@ public class PlayState extends State {
                         break;
                 }
                 // todo: maybe do something with selected tile
-                // if(currentObj.isSelected()) { drawSelectionBox(i,j); }
+
             }
         }
 
         // Draw current Networth
         String netWorth = myWorld.getScore() + "";
+
+        AssetLoader.scoreText.setColor(115 / 255.0f, 55 / 255.0f, 55 / 255.0f, 1f);
         AssetLoader.scoreText.draw(batcher,"$ " + netWorth, 5, 6);
         AssetLoader.scoreText.setScale(.35f, -.35f);
-        AssetLoader.scoreText.draw(batcher,comboTurns +" x " + combo, 90, 8);
+        AssetLoader.scoreText.draw(batcher,comboTurns +" x " + combo, 90, 10);
         AssetLoader.scoreText.setScale(.55f, -.55f);
         //AssetLoader.font.draw(batcher,"$ " + netWorth, 4, 5);
 
@@ -609,6 +612,9 @@ public class PlayState extends State {
         batcher.end();
         //System.out.println("draw at" + i + " " + j);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        int lineWidth = 8; // pixels
+        Gdx.gl20.glLineWidth(lineWidth / cam.zoom);
+
         shapeRenderer.setColor(255 / 255.0f, 255 / 255.0f, 255 / 255.0f, 0.1f);
         shapeRenderer.rect((i*16), (j*16) + topBarHeight, 16, 15);
         shapeRenderer.end();
