@@ -11,8 +11,6 @@ import de.smuda.matchcity.gameobjects.GameObject;
 import de.smuda.matchcity.gameworld.GameRenderer;
 import de.smuda.matchcity.gameworld.GameWorld;
 import de.smuda.matchcity.helpers.AssetLoader;
-import de.smuda.matchcity.helpers.InputHandler;
-import de.smuda.matchcity.ui.Score;
 import de.smuda.matchcity.ui.TextImage;
 
 /**
@@ -33,12 +31,16 @@ public class PlayState extends State {
     private int topBarHeight = 25;
     private String levelString = "";
     private Integer levelInt;
-    private static int lvlIncrease;
-    private int turnsUntilSpawn = 5;
+    private int turnsUntilSpawn;
     private int freeTiles = 72;
     private int randI, randJ;
     private int match;
     private int currentTile;
+    private int prevNumTurns;
+    private static int lvlIncrease;
+    private static int combo;
+    private int comboTurns;
+    private boolean comboBroken;
 
     private boolean selected = false;
 
@@ -86,17 +88,23 @@ public class PlayState extends State {
         initGameObjects();
         initAssets();
 
+        combo = 0;
+        comboTurns = 0;
+        comboBroken = true;
         score = myWorld.getScore();
 
         scoreImage = new TextImage(
                 Integer.toString(score),
-                (MatchCity.WIDTH / 2) - 150,
-                (MatchCity.HEIGHT/2) - 150);
+                (MatchCity.WIDTH / 2) - 100,
+                (MatchCity.HEIGHT/2) - 100);
 
         match = myWorld.checkMatches();
         currentTile = (randJ*8) + randI;
 
         handleMatches(match, currentTile, randI, randJ);
+
+        turnsUntilSpawn = 2;
+        prevNumTurns = turnsUntilSpawn;
 
         //Gdx.input.setInputProcessor(new InputHandler(myWorld, screenWidth / gameWidth, screenHeight / gameHeight));
 
@@ -190,9 +198,28 @@ public class PlayState extends State {
                 int match = myWorld.checkMatches();
                 int currentTile = (j*8) + i;
 
-                if (match == 0) { turnsUntilSpawn--; }
+                if (match == 0) {
+                    turnsUntilSpawn--;
+                    comboTurns--;
+                    comboBroken = true;
+                    if (comboTurns <= 0) {
+                        combo = 1;
+                    }
+                } else {
+                    comboBroken = false;
+
+                }
+
+                if (!comboBroken && match != 0) {
+                    combo++;
+                    comboTurns ++;
+                }
+
+                if (comboTurns < 0) comboTurns = 0;
+
 
                 handleMatches(match, currentTile, i, j);
+
 
             } else { // Tile is occupied - no action
 
@@ -204,7 +231,9 @@ public class PlayState extends State {
 
 
             if (turnsUntilSpawn == 0 && myWorld.getFreeTiles() >= 4) {
-                turnsUntilSpawn = 5;
+                turnsUntilSpawn = prevNumTurns + 1;
+                if (turnsUntilSpawn > 7) { turnsUntilSpawn = 2; }
+                prevNumTurns = turnsUntilSpawn;
                 // spawn random fields
                 for (int n = 0; n < 3; n++) {
                     randI = myWorld.randInt(0, 7);
@@ -248,8 +277,7 @@ public class PlayState extends State {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         // Draw Background Topbar
-        // todo: backup redtopbar shapeRenderer.setColor(209 / 255.0f, 85 / 255.0f, 85 / 255.0f, 1);
-        shapeRenderer.setColor(78 / 255.0f, 168 / 255.0f, 34 / 255.0f, 1);
+        shapeRenderer.setColor(209 / 255.0f, 85 / 255.0f, 85 / 255.0f, 1);
         shapeRenderer.rect(0, 0, 128, topBarHeight);
         // Draw middle background grass
         shapeRenderer.setColor(78 / 255.0f, 168 / 255.0f, 34 / 255.0f, 1);
@@ -311,8 +339,10 @@ public class PlayState extends State {
 
         // Draw current Networth
         String netWorth = myWorld.getScore() + "";
-        // System out print ln (make something amazin for this game
-        //AssetLoader.shadow.draw(batcher,"$ " + netWorth, 5, 6);
+        AssetLoader.scoreText.draw(batcher,"$ " + netWorth, 5, 6);
+        AssetLoader.scoreText.setScale(.35f, -.35f);
+        AssetLoader.scoreText.draw(batcher,comboTurns +" x " + combo, 90, 8);
+        AssetLoader.scoreText.setScale(.55f, -.55f);
         //AssetLoader.font.draw(batcher,"$ " + netWorth, 4, 5);
 
 
@@ -357,14 +387,14 @@ public class PlayState extends State {
 
         AssetLoader.text.setScale(0.15f, -0.15f);
         AssetLoader.text.draw(batcher, "Next Tile: ", 5, 175);
-        AssetLoader.text.draw(batcher, "Turns until Spawn: " + turnsUntilSpawn, 5, 185);
+        AssetLoader.text.draw(batcher, "Turns left: " + turnsUntilSpawn + " / " + prevNumTurns, 5, 185);
         AssetLoader.text.draw(batcher, "Next Rand: ", 65, 175);
         AssetLoader.text.draw(batcher, "Free Tiles: " + myWorld.checkFreeTiles(), 80, 185);
 
         int x = 37;
         int y = 172;
         // draw next element
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 2; i++) {
             switch (myWorld.nextThree[i]) {
                 case 1:
                     batcher.draw(housing, x, y, 8, 8);
@@ -645,7 +675,7 @@ public class PlayState extends State {
 
                 // Levels are added together
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
 
             } else if (currentTile == (myWorld.getFirstHTile()+1)) {
 
@@ -722,7 +752,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i + 1, j, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
 
             } else if (currentTile == (myWorld.getFirstHTile()+2)) {
@@ -752,16 +782,24 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
                         myWorld.setGameObject(i, j + 1, 0);
-                        System.out.println("downwardsLcheck");
 
                         if (j < 7) {// _
                             // check    | shape
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
                                 myWorld.setGameObject(i, j + 2, 0);
-                                System.out.println("Crosscheck");
                             }
                         }
+
+                        if (i < 7) {
+                            // check right
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j + 1).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i+1, j + 1).getLevel();
+                                myWorld.setGameObject(i + 1, j + 1, 0);
+                            }
+                        }
+
+
                     }
                 }
 
@@ -800,7 +838,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i-1, j, 0);
 
                 myWorld.getGameObject(i,j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
 
                 myWorld.resetVHTile();
 
@@ -841,7 +879,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i, j+2, 0);
 
                 myWorld.getGameObject(i,j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
 
                 myWorld.resetVHTile();
 
@@ -864,6 +902,11 @@ public class PlayState extends State {
                             }
                         }
                     }
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j+1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i - 1, j+1).getLevel();
+                        myWorld.setGameObject(i - 1, j+1, 0);
+                    }
+
                     // upward L left
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j-1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i-1, j-1).getLevel();
@@ -890,6 +933,10 @@ public class PlayState extends State {
                                 myWorld.setGameObject(i + 2, j, 0);
                             }
                         }
+                    }
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j+1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
+                        myWorld.setGameObject(i + 1, j + 1, 0);
                     }
 
                     // Standin L to the right
@@ -919,6 +966,7 @@ public class PlayState extends State {
                                 myWorld.setGameObject(i, j+2, 0);
                             }
                         }
+
                     }
 
                 }
@@ -927,7 +975,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i, j+1, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
 
             } else if (currentTile == (myWorld.getFirstVTile()+16)) {
@@ -946,6 +994,13 @@ public class PlayState extends State {
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
                                 myWorld.setGameObject(i + 2, j, 0);
+                            }
+                        }
+
+                        if (j < 8) { // check big liyng T to the right
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j+1).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i + 1, j+1).getLevel();
+                                myWorld.setGameObject(i + 1, j+1, 0);
                             }
                         }
                     }
@@ -978,6 +1033,19 @@ public class PlayState extends State {
                                 myWorld.setGameObject(i, j +2, 0);
                             }
                         }
+                        if (i > 0) { // check 4 in a row one left
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i-1 , j +1).getLevel();
+                                myWorld.setGameObject(i-1, j +1, 0);
+                            }
+                        }
+                        if (j < 7) { // check 4 in a row one right
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j + 1).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i+1 , j +1).getLevel();
+                                myWorld.setGameObject(i+1, j +1, 0);
+                            }
+                        }
+
                     }
                 }
 
@@ -986,7 +1054,7 @@ public class PlayState extends State {
 
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
             }
 
@@ -1011,7 +1079,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i,j+1, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
             }
             if (currentTile == (myWorld.getFirstHTile() + 1)) {
@@ -1038,7 +1106,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i-1,j+1, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
             }
             if (currentTile == (myWorld.getFirstHTile() + 8)) {
@@ -1059,7 +1127,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i+1,j-1, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
             }
         } else if (match == 4) {
@@ -1075,7 +1143,7 @@ public class PlayState extends State {
 
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
             }
             if (currentTile == (myWorld.getFirstHTile() + 1)) {
@@ -1119,7 +1187,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i,j+1, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
             }
             if (currentTile == (myWorld.getFirstHTile() + 8 + 1)) {
@@ -1148,6 +1216,12 @@ public class PlayState extends State {
                                 myWorld.setGameObject(i , j + 2, 0);
                             }
                         }
+
+                        // check to left
+                        if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i -1, j + 1).getType()) {
+                            lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
+                            myWorld.setGameObject(i - 1, j + 1, 0);
+                        }
                     }
                 }
 
@@ -1155,7 +1229,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i,j-1, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
 
             }
@@ -1179,7 +1253,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i-1,j+1, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
             }
             if (currentTile == (myWorld.getFirstVTile() + 8)) {
@@ -1194,13 +1268,29 @@ public class PlayState extends State {
                         myWorld.setGameObject(i + 1, j - 1, 0);
                     }
                 }
+                if (j < 8) {
+                    // downward check
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
+                        myWorld.setGameObject(i, j+1, 0);
+
+                        if (j < 7) {
+                            // downward check
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+2).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i, j+2).getLevel();
+                                myWorld.setGameObject(i, j+2, 0);
+                            }
+                        }
+                    }
+
+                }
 
 
                 myWorld.setGameObject(i,j-1, 0);
                 myWorld.setGameObject(i-1,j, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
             }
             if (currentTile == (myWorld.getFirstVTile() + 8 - 1)) {
@@ -1212,7 +1302,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i+1,j-1, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
 
             }
@@ -1236,7 +1326,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i+1,j+1, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
 
             }
@@ -1265,7 +1355,7 @@ public class PlayState extends State {
                 myWorld.setGameObject(i+1,j, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
             }
             if (currentTile == (myWorld.getFirstVTile() + 8 + 1)) {
@@ -1307,8 +1397,10 @@ public class PlayState extends State {
                 myWorld.setGameObject(i-1,j, 0);
                 myWorld.setGameObject(i-1,j-1, 0);
 
+                lvlIncrease += myWorld.getGameObject(i, j).getLevel();
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 10);
+                myWorld.addMoney(lvlIncrease * 1 , combo);
+
                 myWorld.resetVHTile();
             }
         }
