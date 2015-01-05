@@ -35,7 +35,7 @@ public class ScoreState extends State {
         if(Gdx.input.justTouched()) {
             gsm.set(new TransitionState(
                     gsm, this,
-                    new MenuState(gsm),
+                    new PlayState(gsm),
                     TransitionState.Type.BLACK_FADE));
         }
     }
@@ -57,7 +57,7 @@ public class ScoreState extends State {
         image.render(sb);
         AssetLoader.scoreText.setColor(61 / 255.0f, 138 / 255.0f, 25 / 255.0f, 1f);
         AssetLoader.scoreText.setScale(1f, 1f);
-        AssetLoader.scoreText.draw(sb, "go again", MatchCity.WIDTH / 2 - 30, 120);
+        AssetLoader.scoreText.draw(sb, "go again?", MatchCity.WIDTH / 2 - 30, 120);
         //scoreT.render(sb);
         //goAgain.render(sb);
         sb.end();
