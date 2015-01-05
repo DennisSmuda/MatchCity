@@ -13,6 +13,7 @@ import de.smuda.matchcity.gameworld.GameWorld;
 import de.smuda.matchcity.helpers.AssetLoader;
 import de.smuda.matchcity.helpers.InputHandler;
 import de.smuda.matchcity.ui.Score;
+import de.smuda.matchcity.ui.TextImage;
 
 /**
  * Created by denni_000 on 02.01.2015.
@@ -27,7 +28,8 @@ public class PlayState extends State {
     private GameRenderer renderer;
     private float runTime;
 
-    private Score score;
+    private int score;
+    private TextImage scoreImage;
     private int topBarHeight = 25;
     private String levelString = "";
     private Integer levelInt;
@@ -84,7 +86,12 @@ public class PlayState extends State {
         initGameObjects();
         initAssets();
 
-        score = new Score(MatchCity.WIDTH / 2, MatchCity.HEIGHT / 2);
+        score = myWorld.getScore();
+
+        scoreImage = new TextImage(
+                Integer.toString(score),
+                (MatchCity.WIDTH / 2) - 150,
+                (MatchCity.HEIGHT/2) - 150);
 
         match = myWorld.checkMatches();
         currentTile = (randJ*8) + randI;
@@ -157,6 +164,7 @@ public class PlayState extends State {
 
             } else if (screenY >= 167){
 
+                // todo: make something
                 // bottom touch
 
             }
@@ -169,6 +177,14 @@ public class PlayState extends State {
                 myWorld.setGameObject(i, j, nextTile);
                 myWorld.calculateNextThree();
                 lvlIncrease = 0;
+
+                if (isOver()) {
+                    gsm.set(new TransitionState(
+                            gsm,
+                            this,
+                            new ScoreState(gsm, myWorld.getScore()),
+                            TransitionState.Type.BLACK_FADE));
+                }
 
                 // 1=hmatch,2=vmatch, 3=
                 int match = myWorld.checkMatches();
@@ -187,7 +203,7 @@ public class PlayState extends State {
             handleMatches(match, currentTile, i, j);
 
 
-            if (turnsUntilSpawn == 0 && freeTiles >= 4) {
+            if (turnsUntilSpawn == 0 && myWorld.getFreeTiles() >= 4) {
                 turnsUntilSpawn = 5;
                 // spawn random fields
                 for (int n = 0; n < 3; n++) {
@@ -232,7 +248,8 @@ public class PlayState extends State {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         // Draw Background Topbar
-        shapeRenderer.setColor(209 / 255.0f, 85 / 255.0f, 85 / 255.0f, 1);
+        // todo: backup redtopbar shapeRenderer.setColor(209 / 255.0f, 85 / 255.0f, 85 / 255.0f, 1);
+        shapeRenderer.setColor(78 / 255.0f, 168 / 255.0f, 34 / 255.0f, 1);
         shapeRenderer.rect(0, 0, 128, topBarHeight);
         // Draw middle background grass
         shapeRenderer.setColor(78 / 255.0f, 168 / 255.0f, 34 / 255.0f, 1);
@@ -295,11 +312,14 @@ public class PlayState extends State {
         // Draw current Networth
         String netWorth = myWorld.getScore() + "";
         // System out print ln (make something amazin for this game
-        AssetLoader.shadow.draw(batcher,"$ " + netWorth, 5, 6);
-        AssetLoader.font.draw(batcher,"$ " + netWorth, 4, 5);
+        //AssetLoader.shadow.draw(batcher,"$ " + netWorth, 5, 6);
+        //AssetLoader.font.draw(batcher,"$ " + netWorth, 4, 5);
+
+
+        //scoreImage.setText(netWorth);
+        //scoreImage.render(batcher);
 
         drawBottom();
-
         batcher.end();
     }
 
@@ -321,6 +341,7 @@ public class PlayState extends State {
         special = AssetLoader.special;
         trash = AssetLoader.trash;
         city = AssetLoader.city;
+
     }
 
     // Draw Methods
@@ -338,6 +359,7 @@ public class PlayState extends State {
         AssetLoader.text.draw(batcher, "Next Tile: ", 5, 175);
         AssetLoader.text.draw(batcher, "Turns until Spawn: " + turnsUntilSpawn, 5, 185);
         AssetLoader.text.draw(batcher, "Next Rand: ", 65, 175);
+        AssetLoader.text.draw(batcher, "Free Tiles: " + myWorld.checkFreeTiles(), 80, 185);
 
         int x = 37;
         int y = 172;
@@ -566,7 +588,7 @@ public class PlayState extends State {
 
 
     private boolean isOver() {
-        if (myWorld.getFreeTiles() == 0) {
+        if (myWorld.checkFreeTiles() <= 0) {
             return true;
         } else return false;
     }
@@ -765,7 +787,7 @@ public class PlayState extends State {
                                 myWorld.setGameObject(i + 1, j + 1, 0);
                             }
                         }
-                        if (j < 7) {
+                        if (j > 0) {
                             // check 5 in a row with one upward
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j-1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 1, j-1).getLevel();
@@ -1113,6 +1135,21 @@ public class PlayState extends State {
                         myWorld.setGameObject(i + 1, j, 0);
                     }
                 }
+                if(j < 8) {
+                    // check downward
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i , j + 1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
+                        myWorld.setGameObject(i , j + 1, 0);
+
+                        if(j < 7) {
+                            // check downward
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i , j + 2).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
+                                myWorld.setGameObject(i , j + 2, 0);
+                            }
+                        }
+                    }
+                }
 
                 myWorld.setGameObject(i-1,j-1, 0);
                 myWorld.setGameObject(i,j-1, 0);
@@ -1254,7 +1291,14 @@ public class PlayState extends State {
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i+2, j).getLevel();
                                 myWorld.setGameObject(i+2, j, 0);
+
+                                // four in row uppointing thing
+                                if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j-1).getType()) {
+                                    lvlIncrease += myWorld.getGameObject(i+2, j-1).getLevel();
+                                    myWorld.setGameObject(i+2, j-1, 0);
+                                }
                             }
+
                         }
                     }
                 }

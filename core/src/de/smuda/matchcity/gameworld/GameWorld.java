@@ -48,14 +48,13 @@ public class GameWorld {
         }
 
         gameField = new GameObject[8][9];
-        freeTiles = 0;
 
         // Initialize
         for (int i = 0; i < 8; i++){
             for(int j = 0; j < 9; j++) {
                 gameField[i][j] = new EmptyField(i, j);
-                freeTiles++;
 
+                /*
                 if(randInt(1,100) < 20 && roadsOnField <= maxStartingRoads) {
                     gameField[i][j] = new Road(i, j);
                     freeTiles--;
@@ -69,6 +68,7 @@ public class GameWorld {
                     gameField[i][j] = new Farm(i, j);
                     freeTiles--;
                 }
+                */
             }
         }
     }
@@ -138,6 +138,20 @@ public class GameWorld {
         Random rand = new Random();
         int randomNum = rand.nextInt((max - min) + 1) + min;
         return randomNum;
+    }
+
+    public int checkFreeTiles() {
+        freeTiles = 0;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (getGameObject(i, j).getType() == GameObject.FieldType.EMPTY) {
+                    freeTiles++;
+                } else {
+                    // nothing
+                }
+            }
+        }
+        return freeTiles;
     }
 
     public void calculateNextThree() {
@@ -261,6 +275,7 @@ public class GameWorld {
     }
 
     public int getFreeTiles() { return freeTiles; }
+    public void addFreeTiles(int i) {freeTiles = freeTiles + i;}
 
     public int getFirstHTile() { return firstHTile; }
     public int getFirstVTile() { return firstVTile; }
