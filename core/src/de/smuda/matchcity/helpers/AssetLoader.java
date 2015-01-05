@@ -21,7 +21,7 @@ public class AssetLoader {
     public static TextureRegion houseB, farmB, governB, parkB;//usw
 
 
-    public static BitmapFont font, shadow, pixel, text, number;
+    public static BitmapFont font, shadow, pixel, text, number, scoreText;
 
     private static Preferences prefs;
 
@@ -70,6 +70,9 @@ public class AssetLoader {
         text.setScale(.2f, -.2f);
         number = new BitmapFont(Gdx.files.internal("data/04b_19.fnt"));
         number.setScale(.25f, -.25f);
+        scoreText = new BitmapFont(Gdx.files.internal("data/04b_19.fnt"));
+        scoreText.setColor(115 / 255.0f, 55 / 255.0f, 55 / 255.0f, 1f);
+        scoreText.setScale(.55f, -.55f);
 
 
         // Create or retrieve existing Preferences file

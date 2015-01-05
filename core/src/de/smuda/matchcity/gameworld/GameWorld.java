@@ -54,7 +54,7 @@ public class GameWorld {
             for(int j = 0; j < 9; j++) {
                 gameField[i][j] = new EmptyField(i, j);
 
-                /*
+
                 if(randInt(1,100) < 20 && roadsOnField <= maxStartingRoads) {
                     gameField[i][j] = new Road(i, j);
                     freeTiles--;
@@ -68,16 +68,19 @@ public class GameWorld {
                     gameField[i][j] = new Farm(i, j);
                     freeTiles--;
                 }
-                */
+
             }
         }
+
+
     }
 
     public void update(float delta) {
 
     }
 
-    public void addMoney(int increment) {
+    public void addMoney(int increment, int combo) {
+        increment = (increment * combo);
         score += increment;
     }
 
