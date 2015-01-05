@@ -15,7 +15,7 @@ import de.smuda.matchcity.ui.TextImage;
 public class MenuState extends State {
 
     private Graphic title;
-    private TextImage play, time;
+    private TextImage play, rules;
     private ShapeRenderer shapeRenderer;
 
     public MenuState(GSM gsm) {
@@ -32,8 +32,8 @@ public class MenuState extends State {
                 MatchCity.WIDTH / 2,
                 MatchCity.HEIGHT / 2 - 50);
 
-        time = new TextImage(
-                "time",
+        rules = new TextImage(
+                "rules",
                 MatchCity.WIDTH / 2,
                 MatchCity.HEIGHT / 2 - 120);
     }
@@ -54,7 +54,7 @@ public class MenuState extends State {
                         new PlayState(gsm),
                         Type.BLACK_FADE));
             }
-            if(time.contains(mouse.x, mouse.y)) {
+            if(rules.contains(mouse.x, mouse.y)) {
                 gsm.set(new TransitionState(
                         gsm, this,
                         new TimeState(gsm),
@@ -76,14 +76,14 @@ public class MenuState extends State {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         //Draw Background Topbar
-        shapeRenderer.setColor(120 / 255.0f, 145 / 255.0f, 60 / 255.0f, 1);
+        shapeRenderer.setColor(120 / 255.0f, 245 / 255.0f, 60 / 255.0f, 1);
         shapeRenderer.rect(0, +100, MatchCity.WIDTH, MatchCity.HEIGHT + 150);
         shapeRenderer.end();
 
         sb.begin();
         title.render(sb);
         play.render(sb);
-       // time.render(sb);
+        rules.render(sb);
         sb.end();
     }
 }

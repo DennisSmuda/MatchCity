@@ -25,6 +25,7 @@ public class GameWorld {
 
     private int maxStartingRoads = 6;
     private int roadsOnField = 0;
+    private int freeTiles;
 
     public enum FieldState {
         EMPTY, ROAD, HOUSING, INDUSTRY,
@@ -47,21 +48,26 @@ public class GameWorld {
         }
 
         gameField = new GameObject[8][9];
-
+        freeTiles = 0;
 
         // Initialize
         for (int i = 0; i < 8; i++){
             for(int j = 0; j < 9; j++) {
                 gameField[i][j] = new EmptyField(i, j);
+                freeTiles++;
+
                 if(randInt(1,100) < 20 && roadsOnField <= maxStartingRoads) {
                     gameField[i][j] = new Road(i, j);
+                    freeTiles--;
                     addRoad();
                 }
                 if(randInt(1,100) > 93) {
                     gameField[i][j] = new Housing(i, j);
+                    freeTiles--;
                 }
                 if (randInt(1, 100) > 97) {
                     gameField[i][j] = new Farm(i, j);
+                    freeTiles--;
                 }
             }
         }
@@ -253,6 +259,8 @@ public class GameWorld {
     public int getNextRand(int i) {
         return nextRands[i];
     }
+
+    public int getFreeTiles() { return freeTiles; }
 
     public int getFirstHTile() { return firstHTile; }
     public int getFirstVTile() { return firstVTile; }

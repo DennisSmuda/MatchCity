@@ -120,7 +120,7 @@ public class TransitionState extends State {
             sb.setColor(0, 0, 0, alpha);
             sb.setProjectionMatrix(cam.combined);
             sb.begin();
-            sb.draw(dark, 0, 0, MatchCity.WIDTH, MatchCity.HEIGHT);
+            sb.draw(dark, 0, -100, MatchCity.WIDTH, MatchCity.HEIGHT + 750);
             sb.end();
             sb.setColor(1, 1, 1, 1);
         }
