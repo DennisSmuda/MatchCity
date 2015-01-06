@@ -54,6 +54,8 @@ public class PlayState extends State {
     private int barOffset = 25;
     private int nextTile;
 
+    private boolean debugMode;
+
     // Assets
     public static TextureRegion empty,  housing, farm, government,
             park, road, shops, power, industry,
@@ -64,6 +66,8 @@ public class PlayState extends State {
     public PlayState(GSM gsm) {
 
         super(gsm);
+
+        debugMode = false;
 
         float screenWidth = Gdx.graphics.getWidth();  // 320
         float screenHeight = Gdx.graphics.getHeight(); // 480
@@ -277,12 +281,19 @@ public class PlayState extends State {
 
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        // Draw Background Topbar
-        shapeRenderer.setColor(209 / 255.0f, 85 / 255.0f, 85 / 255.0f, 1);
+
+        // Draw Topbar
+        shapeRenderer.setColor(244 / 255.0f, 67 / 255.0f, 54 / 255.0f, 1);
         shapeRenderer.rect(0, 0, 128, topBarHeight);
+
         // Draw middle background grass
         shapeRenderer.setColor(78 / 255.0f, 168 / 255.0f, 34 / 255.0f, 1);
         shapeRenderer.rect(0, 24, 320, 465);
+
+        // draw bottom bar
+        shapeRenderer.setColor(0 / 255.0f, 200 / 255.0f, 83 / 255.0f, 1);
+        shapeRenderer.rect(0, 24, 320, 400);
+
 
 
         shapeRenderer.end();
@@ -344,6 +355,8 @@ public class PlayState extends State {
         AssetLoader.scoreText.setColor(115 / 255.0f, 55 / 255.0f, 55 / 255.0f, 1f);
         AssetLoader.scoreText.draw(batcher,"$ " + netWorth, 5, 6);
         AssetLoader.scoreText.setScale(.35f, -.35f);
+
+
         AssetLoader.scoreText.draw(batcher,comboTurns +" x " + combo, 90, 10);
         AssetLoader.scoreText.setScale(.55f, -.55f);
         //AssetLoader.font.draw(batcher,"$ " + netWorth, 4, 5);
@@ -515,7 +528,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(104 / 255.0f, 71 / 255.0f, 12 / 255.0f, 1f);
+        AssetLoader.number.setColor(130 / 255.0f, 96 / 255.0f, 38 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -532,7 +545,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(138 / 255.0f, 106 / 255.0f, 46 / 255.0f, 1f);
+        AssetLoader.number.setColor(114 / 255.0f, 123 / 255.0f, 38 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -543,7 +556,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(61 / 255.0f, 138 / 255.0f, 25 / 255.0f, 1f);
+        AssetLoader.number.setColor(122 / 255.0f, 36 / 255.0f, 62 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -554,7 +567,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(46 / 255.0f, 116 / 255.0f, 150 / 255.0f, 1f);
+        AssetLoader.number.setColor(127 / 255.0f, 40 / 255.0f, 137 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -565,7 +578,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(144 / 255.0f, 147 / 255.0f, 18 / 255.0f, 1f);
+        AssetLoader.number.setColor(15 / 255.0f, 70 / 255.0f, 76 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -576,7 +589,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(80 / 255.0f, 58 / 255.0f, 21 / 255.0f, 1f);
+        AssetLoader.number.setColor(5 / 255.0f, 104 / 255.0f, 153 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -604,7 +617,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(82 / 255.0f, 124 / 255.0f, 136 / 255.0f, 1f);
+        AssetLoader.number.setColor(173 / 255.0f, 78 / 255.0f, 48 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -639,6 +652,7 @@ public class PlayState extends State {
 
     private void handleMatches(int match, int currentTile, int i, int j) {
 
+        lvlIncrease = 1;
 
         if(match == 1) {
             System.out.println("match = 1");
@@ -685,10 +699,8 @@ public class PlayState extends State {
 
             } else if (currentTile == (myWorld.getFirstHTile()+1)) {
 
-                lvlIncrease = 0;
                 lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
                 lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
-
 
                 if (j > 0) {
                     // check for upwardw pointing "T"
@@ -763,7 +775,6 @@ public class PlayState extends State {
 
             } else if (currentTile == (myWorld.getFirstHTile()+2)) {
                 // current tile is last htile
-                lvlIncrease = 0;
                 lvlIncrease += myWorld.getGameObject(i-2, j).getLevel();
                 lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
 
@@ -855,7 +866,6 @@ public class PlayState extends State {
             // vmatch
             if (currentTile == myWorld.getFirstVTile()) {
                 // current tile is first htile
-                lvlIncrease = 0;
                 lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
                 lvlIncrease += myWorld.getGameObject(i, j+2).getLevel();
 
@@ -891,7 +901,6 @@ public class PlayState extends State {
 
             } else if (currentTile == (myWorld.getFirstVTile()+8)) {
                 // current tile is second htile
-                lvlIncrease = 0;
                 lvlIncrease += myWorld.getGameObject(i, j-1).getLevel();
                 lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
 
@@ -986,7 +995,6 @@ public class PlayState extends State {
 
             } else if (currentTile == (myWorld.getFirstVTile()+16)) {
                 // current tile is last htile
-                lvlIncrease = 0;
                 lvlIncrease += myWorld.getGameObject(i, j-2).getLevel();
                 lvlIncrease += myWorld.getGameObject(i, j-1).getLevel();
 
@@ -1045,7 +1053,7 @@ public class PlayState extends State {
                                 myWorld.setGameObject(i-1, j +1, 0);
                             }
                         }
-                        if (j < 7) { // check 4 in a row one right
+                        if (i < 7) { // check 4 in a row one right
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j + 1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i+1 , j +1).getLevel();
                                 myWorld.setGameObject(i+1, j +1, 0);
@@ -1077,9 +1085,17 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
                         myWorld.setGameObject(i - 1, j + 1, 0);
-                        System.out.println("tetromino checku");
                     }
                 }
+                if (j > 0) {
+                    // check upwards
+                    if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j -1).getType()) {
+                        lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();
+                        myWorld.setGameObject(i + 1, j - 1, 0);
+                    }
+                }
+
+
 
                 myWorld.setGameObject(i+1,j, 0);
                 myWorld.setGameObject(i,j+1, 0);
@@ -1089,7 +1105,6 @@ public class PlayState extends State {
                 myWorld.resetVHTile();
             }
             if (currentTile == (myWorld.getFirstHTile() + 1)) {
-                lvlIncrease = 0;
                 lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
                 lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
 
@@ -1116,7 +1131,6 @@ public class PlayState extends State {
                 myWorld.resetVHTile();
             }
             if (currentTile == (myWorld.getFirstHTile() + 8)) {
-                lvlIncrease = 0;
                 lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
                 lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();
 
@@ -1153,7 +1167,6 @@ public class PlayState extends State {
                 myWorld.resetVHTile();
             }
             if (currentTile == (myWorld.getFirstHTile() + 1)) {
-                lvlIncrease = 0;
                 lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
                 lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
 

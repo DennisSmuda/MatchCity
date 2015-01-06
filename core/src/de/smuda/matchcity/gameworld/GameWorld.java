@@ -80,8 +80,9 @@ public class GameWorld {
     }
 
     public void addMoney(int increment, int combo) {
-        increment = (increment * combo);
-        score += increment;
+        int newScore = increment * combo;
+        //increment = (increment * combo);
+        score = score + newScore;
     }
 
     public GameObject getGameObject(int i, int j) {
@@ -162,25 +163,27 @@ public class GameWorld {
         nextThree[1] = nextThree[2];
         nextThree[2] = randInt(1, 11);
 
-        int next = randInt(1, 100);
-        if (next < 30) {
+        int next = randInt(1, 115);
+        if (next < 20) {
             nextThree[2] = 1;
-        } else if (next < 50) {
+        } else if (next < 40) {
             nextThree[2] = 2;
+        } else if (next < 50) {
+            nextThree[2] = 4; // gov
         } else if (next < 60) {
             nextThree[2] = 7; // power
         } else if (next < 70) {
             nextThree[2] = 10; // trash
-        } else if (next < 75) {
-            nextThree[2] = 5; // park
         } else if (next < 80) {
+            nextThree[2] = 5; // park
+        } else if (next < 90) {
             nextThree[2] = 8; // industry
-        } else if (next < 85) {
+        } else if (next < 100) {
             nextThree[2] = 6; // shops
-        } else if(next < 90) {
+        } else if(next < 110) {
             nextThree[2] = 11; // CITY
-        } else if (next < 95) {
-            nextThree[2] = 9;
+        } else if (next < 115) {
+            nextThree[2] = 9; // special
         } else {
             nextThree[2] = 2;
         }

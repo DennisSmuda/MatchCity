@@ -28,7 +28,7 @@ public class AssetLoader {
     public static void load() {
 
         // Load assets here..
-        texture = new Texture(Gdx.files.internal("idleCity.png"));
+        texture = new Texture(Gdx.files.internal("idleCityMaterial.png"));
         texture.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
 
         empty = new TextureRegion(texture, 0, 0, 16, 16);
