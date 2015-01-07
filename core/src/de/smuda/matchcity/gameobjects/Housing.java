@@ -12,7 +12,15 @@ public class Housing extends GameObject {
         super(i, j);
         type = FieldType.HOUSING;
         level = 1;
-        multiplier = 2;
+    }
+
+    public Housing(int i, int j, int newLevel) {
+        super(i, j, newLevel);
+        type = FieldType.HOUSING;
+    }
+
+    public void addLevel(int i) {
+        level += i;
     }
 
 

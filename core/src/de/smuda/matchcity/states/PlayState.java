@@ -74,11 +74,8 @@ public class PlayState extends State {
         float gameWidth = 128;
         float gameHeight = screenHeight / (screenWidth / gameWidth);
 
-        int midPointY = (int) (gameHeight / 2);
-
         scaleFactorX = (int)(screenWidth / gameWidth);
         scaleFactorY = (int)(screenHeight / gameHeight);
-
 
         cam = new OrthographicCamera();
         cam.setToOrtho(true, 128, gameHeight); //136
@@ -110,9 +107,6 @@ public class PlayState extends State {
 
         turnsUntilSpawn = 2;
         prevNumTurns = turnsUntilSpawn;
-
-        //Gdx.input.setInputProcessor(new InputHandler(myWorld, screenWidth / gameWidth, screenHeight / gameHeight));
-
     }
 
 
@@ -131,8 +125,8 @@ public class PlayState extends State {
 
 
             if(screenY < barOffset ) {
-                // TOPBAR PRESSED
-                // Show stats or something
+                // TOPBAR touch
+                // nothing yet
 
             } else if(screenY <  400) {
 
@@ -212,15 +206,15 @@ public class PlayState extends State {
                     }
                 } else {
                     comboBroken = false;
-
+                    // Spawn a powerup
                     if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.SPECIAL) {
                         int rand = myWorld.randInt(0, 20);
 
-                        if (rand < 7) { // TNT
+                        if (rand < 10) { // TNT
                             if (myWorld.getNumRoads() < 1) {
                                 myWorld.setGameObject(i, j, 14);
                             } else {
-                                myWorld.setGameObject(i, j, 13);
+                                myWorld.setGameObject(i, j, 12);
                             }
                         } else if(rand < 14) { // Reset
                             myWorld.setGameObject(i, j, 13);
@@ -238,11 +232,9 @@ public class PlayState extends State {
 
                 if (comboTurns < 0) comboTurns = 0;
 
-
                 handleMatches(match, currentTile, i, j);
 
-
-            } else { // Tile is occupied - no action
+            } else { // Tile is occupied
                 // check if special tile was touched
                 if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.TNT) {
                     myWorld.setGameObject(i, j, 0);
@@ -280,15 +272,11 @@ public class PlayState extends State {
                     } else {
                         n--;
                     }
-
                 }
-
                 myWorld.calculateNextRands();
-
             } else {
                 // game over
             }
-
         }
     }
 
@@ -305,8 +293,6 @@ public class PlayState extends State {
         Gdx.gl.glClearColor(0, 1, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-
-
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
         // Draw Topbar
@@ -321,10 +307,7 @@ public class PlayState extends State {
         shapeRenderer.setColor(0 / 255.0f, 200 / 255.0f, 83 / 255.0f, 1);
         shapeRenderer.rect(0, 24, 320, 400);
 
-
-
         shapeRenderer.end();
-
 
         batcher.begin();
 
@@ -380,8 +363,6 @@ public class PlayState extends State {
                     default:
                         break;
                 }
-                // todo: maybe do something with selected tile
-
             }
         }
 
@@ -392,7 +373,6 @@ public class PlayState extends State {
 
         AssetLoader.scoreText.setScale(.45f, -.45f);
         AssetLoader.scoreText.draw(batcher, "$ " + netWorth, 5, 6);
-
 
         AssetLoader.scoreText.setScale(.35f, -.35f);
         AssetLoader.scoreText.draw(batcher, comboTurns + " x " + combo, 90, 10);
@@ -426,14 +406,10 @@ public class PlayState extends State {
 
     }
 
-    // Draw Methods
-    private void drawInfo() {
 
-
-        levelString = levelInt.toString();
-        AssetLoader.pixel.setColor(115 / 255.0f, 55 / 255.0f, 55 / 255.0f, 1f);
-        AssetLoader.pixel.draw(batcher, "Food: ", 150, 4);
-    }
+    // **************** //
+    // Drawing Methods  //
+    // **************** //
 
     private void drawBottom() {
 
@@ -940,6 +916,12 @@ public class PlayState extends State {
                                 myWorld.setGameObject(i + 2, j, 0);
                             }
                         }
+                        if (j > 0) {
+                            if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i+1,j+1).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
+                                myWorld.setGameObject(i + 1, j + 1, 0);
+                            }
+                        }
                     }
                 }
 
@@ -1130,7 +1112,7 @@ public class PlayState extends State {
             if (currentTile == (myWorld.getFirstHTile())) {
                 lvlIncrease = 0;
                 lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
-                lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
+                lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
 
                 if (i > 0) {
                     // check tetromino

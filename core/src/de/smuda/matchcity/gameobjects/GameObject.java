@@ -2,14 +2,19 @@ package de.smuda.matchcity.gameobjects;
 
 /**
  * Created by denni_000 on 02.01.2015.
+ *
+ * Base class for all gameobjects (tiles in this case)
+ *
  */
+
+
+
 public class GameObject {
     protected int x, y;
     protected int width = 16;
     protected int height = 16;
     protected int level = 1;
-    protected int neighbours = 0;
-    protected int multiplier = 1;
+
 
     protected FieldType type = FieldType.INIT;
     protected boolean isSelected = false;
@@ -22,9 +27,15 @@ public class GameObject {
     }
 
     public GameObject(int i, int j) {
-        int x = i;
-        int y = j;
+        x = i;
+        y = j;
+        level = 1;
+    }
 
+    public GameObject(int i, int j, int newLevel) {
+        x = i;
+        y = j;
+        level = newLevel;
     }
 
     public void resetLevel() {
@@ -41,9 +52,6 @@ public class GameObject {
 
     public void addLevel(int i) {
         level += i;
-        //int t = (int) level % 3;
-        //level = level - t;
-        // todo: T will add some special shit
     }
 
     public int getLevel() {

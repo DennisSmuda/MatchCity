@@ -9,4 +9,9 @@ public class Park extends GameObject {
         super(i, j);
         type = FieldType.PARK;
     }
+
+    public Park(int i, int j, int newLevel) {
+        super(i, j, newLevel);
+        type = FieldType.PARK;
+    }
 }

@@ -11,4 +11,10 @@ public class Special extends GameObject {
         type = FieldType.SPECIAL;
     }
 
+    public Special(int i, int j, int newLevel) {
+        super(i, j, newLevel);
+        type = FieldType.SPECIAL;
+    }
+
+
 }

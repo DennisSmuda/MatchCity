@@ -9,4 +9,9 @@ public class Farm extends GameObject {
         super(i, j);
         type = FieldType.FARM;
     }
+
+    public Farm(int i, int j, int newLevel) {
+        super(i, j, newLevel);
+        type = FieldType.FARM;
+    }
 }

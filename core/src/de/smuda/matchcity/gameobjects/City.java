@@ -8,4 +8,9 @@ public class City extends GameObject {
         super(i, j);
         type = FieldType.CITY;
     }
+
+    public City(int i, int j, int newLevel) {
+        super(i, j, newLevel);
+        type = FieldType.CITY;
+    }
 }

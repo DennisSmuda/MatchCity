@@ -9,4 +9,9 @@ public class Government extends GameObject {
         super(i, j);
         type = FieldType.GOVERNMENT;
     }
+
+    public Government(int i, int j, int newLevel) {
+        super(i, j, newLevel);
+        type = FieldType.GOVERNMENT;
+    }
 }

@@ -7,6 +7,8 @@ import java.util.Random;
 
 /**
  * Created by denni_000 on 02.01.2015.
+ * GameWorld class holds info and logic about the playing field.
+ * Basically helper class for PlayState class, for array traversal etc..
  */
 public class GameWorld {
 
@@ -21,17 +23,9 @@ public class GameWorld {
     private int firstHTile = -1;
     private int firstVTile = -1;
 
-    private State currentState;
-
     private int maxStartingRoads = 6;
     private int roadsOnField = 0;
     private int freeTiles;
-
-    public enum FieldState {
-        EMPTY, ROAD, HOUSING, INDUSTRY,
-        TRASH, FARM, PARK, SPECIAL, CITY,
-        SHOPS, POWER, GOVERNMENT,
-    }
 
 
     public GameWorld() {
@@ -54,25 +48,18 @@ public class GameWorld {
             for(int j = 0; j < 9; j++) {
                 gameField[i][j] = new EmptyField(i, j);
 
-
                 if(randInt(1,100) < 20 && roadsOnField <= maxStartingRoads) {
                     gameField[i][j] = new Road(i, j);
-                    freeTiles--;
                     addRoad();
                 }
-                if(randInt(1,100) > 93) {
+                if(randInt(1,100) > 85) {
                     gameField[i][j] = new Housing(i, j);
-                    freeTiles--;
                 }
-                if (randInt(1, 100) > 97) {
+                if (randInt(1, 100) > 90) {
                     gameField[i][j] = new Farm(i, j);
-                    freeTiles--;
                 }
-
             }
         }
-
-
     }
 
     public void update(float delta) {
@@ -154,10 +141,13 @@ public class GameWorld {
 
     public int checkFreeTiles() {
         freeTiles = 0;
+        roadsOnField = 0;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 9; j++) {
                 if (getGameObject(i, j).getType() == GameObject.FieldType.EMPTY) {
                     freeTiles++;
+                } else if(getGameObject(i, j).getType() == GameObject.FieldType.ROAD){
+                    roadsOnField++;
                 } else {
                     // nothing
                 }
@@ -171,7 +161,7 @@ public class GameWorld {
         nextThree[1] = nextThree[2];
         nextThree[2] = randInt(1, 11);
 
-        int next = randInt(1, 400);
+        int next = randInt(1, 120);
         if (next < 20) {
             nextThree[2] = 1; // house
         } else if (next < 40) {
@@ -190,7 +180,7 @@ public class GameWorld {
             nextThree[2] = 8; // trash
         } else if(next < 110) {
             nextThree[2] = 9; // city
-        } else if (next > 120) {
+        } else if (next < 120) {
             nextThree[2] = 10; // special
         } else {
             nextThree[2] = 2;
@@ -220,11 +210,11 @@ public class GameWorld {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 9; j++) {
 
-                int currentLvl = gameField[i][j].getLevel();
-
                 GameObject.FieldType currentT = gameField[i][j].getType();
-                // dont check empty fields and roads for matches
-                if (currentT != GameObject.FieldType.EMPTY && currentT != GameObject.FieldType.ROAD) {
+                // don't check empty fields, roads or powerups for matches
+                if (currentT != GameObject.FieldType.EMPTY && currentT != GameObject.FieldType.ROAD &&
+                        currentT != GameObject.FieldType.TNT && currentT != GameObject.FieldType.SWAP &&
+                        currentT != GameObject.FieldType.RESET) {
                     // check to the right for triple match. returns 1
                     if (i < 6) {
                         if (currentT == gameField[i + 1][j].getType() &&
@@ -279,7 +269,6 @@ public class GameWorld {
                 }
             }
         }
-        // todo: maybe check for tetromino shapes?!
         // no match found
         return 0;
     }
@@ -289,7 +278,6 @@ public class GameWorld {
     }
 
     public int getFreeTiles() { return freeTiles; }
-    public void addFreeTiles(int i) {freeTiles = freeTiles + i;}
 
     public int getFirstHTile() { return firstHTile; }
     public int getFirstVTile() { return firstVTile; }
@@ -299,60 +287,48 @@ public class GameWorld {
         switch (type) {
             case 0:
                 gameField[i][j] = new EmptyField(i, j);
-                gameField[i][i].addLevel(level);
                 break;
             case 1:
-                gameField[i][j] = new Housing(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new Housing(i, j, level);
                 break;
             case 2:
-                gameField[i][j] = new Farm(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new Farm(i, j, level);
                 break;
             case 3:
-                gameField[i][j] = new Government(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new Government(i, j, level);
                 break;
             case 4:
-                gameField[i][j] = new Park(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new Park(i, j, level);
                 break;
             case 5:
-                gameField[i][j] = new Shops(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new Shops(i, j, level);
                 break;
             case 6:
-                gameField[i][j] = new Power(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new Power(i, j, level);
                 break;
             case 7:
-                gameField[i][j] = new Industry(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new Industry(i, j, level);
                 break;
             case 8:
-                gameField[i][j] = new Trash(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new Trash(i, j, level);
                 break;
             case 9:
-                gameField[i][j] = new City(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new City(i, j, level);
                 break;
             case 10:
-                gameField[i][j] = new Special(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new Special(i, j, level);
                 break;
             case 11:
-                gameField[i][j] = new Road(i, j);
-                gameField[i][i].addLevel(level);
+                gameField[i][j] = new Road(i, j, level);
                 break;
             default:
                 break;
         }
     }
 
-    /*
-    Specials
-     */
+    // *********** //
+    //   PowerUps  //
+    // *********** //
 
     public void deleteRoad() {
         boolean found = false;
@@ -380,8 +356,8 @@ public class GameWorld {
 
         int randI, randJ;
 
-        for (int i = 0; i < 7; i++) {
-            for (int j = 0; j < 8; j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 9; j++) {
                     // add all levels together
                 switch (getGameObject(i, j).getType()) {
                     case FARM:
@@ -425,6 +401,9 @@ public class GameWorld {
                 }
             }
         }
+        for (int n = 0; n < 10; n++) {
+            System.out.println(levels[n]);
+        }
 
         // combine
         int typeCounter = 1;
@@ -434,6 +413,7 @@ public class GameWorld {
             randJ = randInt(0, 8);
 
             if (getGameObject(randI, randJ).getType() == GameObject.FieldType.EMPTY) {
+                System.out.println("set" + typeCounter + "to " + levels[typeCounter]);
                 resetGameObject(randI, randJ, typeCounter, levels[typeCounter]);
                 typeCounter++;
             }

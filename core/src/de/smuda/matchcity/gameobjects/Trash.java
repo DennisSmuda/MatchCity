@@ -8,4 +8,9 @@ public class Trash extends GameObject {
         super(i, j);
         type = FieldType.TRASH;
     }
+
+    public Trash(int i, int j, int newLevel) {
+        super(i, j, newLevel);
+        type = FieldType.TRASH;
+    }
 }

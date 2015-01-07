@@ -9,4 +9,9 @@ public class Road extends GameObject {
         super(i, j);
         type = FieldType.ROAD;
     }
+
+    public Road(int i, int j, int newLevel) {
+        super(i, j, newLevel);
+        type = FieldType.ROAD;
+    }
 }

@@ -9,4 +9,9 @@ public class Shops extends GameObject {
         super(i,j);
         type = FieldType.SHOPS;
     }
+
+    public Shops(int i, int j, int newLevel) {
+        super(i, j, newLevel);
+        type = FieldType.SHOPS;
+    }
 }

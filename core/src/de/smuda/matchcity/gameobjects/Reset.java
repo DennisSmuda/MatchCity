@@ -6,6 +6,6 @@ package de.smuda.matchcity.gameobjects;
 public class Reset extends GameObject {
     public Reset(int i, int j) {
         super(i, j);
-        type = FieldType.TNT;
+        type = FieldType.RESET;
     }
 }

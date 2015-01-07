@@ -7,6 +7,6 @@ public class Swap extends GameObject {
 
     public Swap(int i, int j) {
         super(i, j);
-        type = FieldType.TNT;
+        type = FieldType.SWAP;
     }
 }
