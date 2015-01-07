@@ -70,21 +70,21 @@ public class ScoreState extends State {
 
         sb.begin();
 
-        AssetLoader.scoreText.setColor(61 / 255.0f, 138 / 255.0f, 25 / 255.0f, 1f);
-        AssetLoader.scoreText.setScale(1f, 1f);
+        //AssetLoader.scoreStateText.setColor(39 / 255.0f, 73 / 255.0f, 57 / 255.0f, 1f);
+        AssetLoader.scoreStateText.setScale(.75f, .75f);
 
         if (isNewHigh) {
 
-            AssetLoader.scoreText.draw(sb, "New Highscore!", (MatchCity.WIDTH / 2) - 130, MatchCity.HEIGHT / 2 + 100);
+            AssetLoader.scoreStateText.draw(sb, "New Highscore!", (MatchCity.WIDTH / 2) - 140, MatchCity.HEIGHT / 2 + 70);
             scoreImage.render(sb);
 
-            AssetLoader.scoreText.draw(sb, "go again?", MatchCity.WIDTH / 2 - 35, 125);
+            AssetLoader.scoreStateText.draw(sb, "go again?", MatchCity.WIDTH / 2 - 35, 125);
         } else {
 
-            AssetLoader.scoreText.draw(sb, "Highscore: " + highscore, (MatchCity.WIDTH / 2) - 120, MatchCity.HEIGHT / 2 + 130);
-            AssetLoader.scoreText.draw(sb, "your score: ", (MatchCity.WIDTH / 2) -130, MatchCity.HEIGHT / 2 + 80);
+            AssetLoader.scoreStateText.draw(sb, "Highscore: " + highscore, (MatchCity.WIDTH / 2) - 130, MatchCity.HEIGHT / 2 + 130);
+            AssetLoader.scoreStateText.draw(sb, "your score: ", (MatchCity.WIDTH / 2) -120, MatchCity.HEIGHT / 2 + 70);
             scoreImage.render(sb);
-            AssetLoader.scoreText.draw(sb, "go again?", MatchCity.WIDTH / 2 - 30, 120);
+            AssetLoader.scoreStateText.draw(sb, "go again?", MatchCity.WIDTH / 2 - 800, 120);
         }
         //scoreT.render(sb);
         //goAgain.render(sb);

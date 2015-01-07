@@ -59,7 +59,7 @@ public class PlayState extends State {
     // Assets
     public static TextureRegion empty,  housing, farm, government,
             park, road, shops, power, industry,
-            special, trash, city;
+            special, trash, city, tnt, swap, reset;
 
 
     // Constructor
@@ -214,7 +214,19 @@ public class PlayState extends State {
                     comboBroken = false;
 
                     if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.SPECIAL) {
-                        myWorld.deleteRoad();
+                        int rand = myWorld.randInt(0, 20);
+
+                        if (rand < 7) { // TNT
+                            if (myWorld.getNumRoads() < 1) {
+                                myWorld.setGameObject(i, j, 14);
+                            } else {
+                                myWorld.setGameObject(i, j, 13);
+                            }
+                        } else if(rand < 14) { // Reset
+                            myWorld.setGameObject(i, j, 13);
+                        } else if(rand < 20) { // Swap
+                            myWorld.setGameObject(i, j, 14);
+                        }
                     }
 
                 }
@@ -231,6 +243,17 @@ public class PlayState extends State {
 
 
             } else { // Tile is occupied - no action
+                // check if special tile was touched
+                if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.TNT) {
+                    myWorld.setGameObject(i, j, 0);
+                    myWorld.deleteRoad();
+                } else if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.RESET) {
+                    myWorld.setGameObject(i, j, 0);
+                    myWorld.resetBoard();
+                } else if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.SWAP) {
+                    myWorld.setGameObject(i, j, 0);
+                    myWorld.swapNext();
+                }
 
             }
 
@@ -345,6 +368,15 @@ public class PlayState extends State {
                     case CITY:
                         drawCity(i, j);
                         break;
+                    case TNT:
+                        drawTNT(i, j);
+                        break;
+                    case RESET:
+                        drawReset(i, j);
+                        break;
+                    case SWAP:
+                        drawSwap(i, j);
+                        break;
                     default:
                         break;
                 }
@@ -364,13 +396,6 @@ public class PlayState extends State {
 
         AssetLoader.scoreText.setScale(.35f, -.35f);
         AssetLoader.scoreText.draw(batcher, comboTurns + " x " + combo, 90, 10);
-
-
-        //AssetLoader.font.draw(batcher,"$ " + netWorth, 4, 5);
-
-
-        //scoreImage.setText(netWorth);
-        //scoreImage.render(batcher);
 
         drawBottom();
         batcher.end();
@@ -395,6 +420,10 @@ public class PlayState extends State {
         trash = AssetLoader.trash;
         city = AssetLoader.city;
 
+        tnt = AssetLoader.tnt;
+        reset = AssetLoader.reset;
+        swap = AssetLoader.swap;
+
     }
 
     // Draw Methods
@@ -409,15 +438,16 @@ public class PlayState extends State {
     private void drawBottom() {
 
         AssetLoader.text.setScale(0.15f, -0.15f);
-        AssetLoader.text.draw(batcher, "Next Tile: ", 5, 175);
+        //AssetLoader.text.setColor(39 / 255.0f, 73 / 255.0f, 57 / 255.0f, 1f);
+        AssetLoader.text.draw(batcher, "Next: ", 5, 175);
         AssetLoader.text.draw(batcher, "Turns left: " + turnsUntilSpawn + " / " + prevNumTurns, 5, 185);
         AssetLoader.text.draw(batcher, "Next Rand: ", 65, 175);
         AssetLoader.text.draw(batcher, "Free Tiles: " + myWorld.checkFreeTiles(), 80, 185);
 
-        int x = 37;
+        int x = 23;
         int y = 172;
         // draw next element
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             switch (myWorld.nextThree[i]) {
                 case 1:
                     batcher.draw(housing, x, y, 8, 8);
@@ -426,33 +456,32 @@ public class PlayState extends State {
                     batcher.draw(farm, x, y, 8, 8);
                     break;
                 case 3:
-                    batcher.draw(road, x, y, 8, 8);
-                    break;
-                case 4:
                     batcher.draw(government, x, y, 8, 8);
                     break;
-                case 5:
+                case 4:
                     batcher.draw(park, x, y, 8, 8);
                     break;
-                case 6:
+                case 5:
                     batcher.draw(shops, x, y, 8, 8);
                     break;
-                case 7:
+                case 6:
                     batcher.draw(power, x, y, 8, 8);
                     break;
-                case 8:
+                case 7:
                     batcher.draw(industry, x, y, 8, 8);
                     break;
-                case 9:
-                    batcher.draw(special, x, y, 8, 8);
-                    break;
-                case 10:
+                case 8:
                     batcher.draw(trash, x, y, 8, 8);
                     break;
-                case 11:
+                case 9:
                     batcher.draw(city, x, y, 8, 8);
                     break;
-
+                case 10:
+                    batcher.draw(special, x, y, 8, 8);
+                    break;
+                case 11:
+                    batcher.draw(road, x, y, 8, 8);
+                    break;
                 default:
                     break;
             }
@@ -628,6 +657,22 @@ public class PlayState extends State {
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
+    private void drawTNT(int i, int j) {
+        int x = (i * 16);
+        int y = (j * 16) + 25;
+        batcher.draw(tnt, x, y, 16, 16);
+    }
+    private void drawReset(int i, int j) {
+        int x = (i * 16);
+        int y = (j * 16) + 25;
+        batcher.draw(reset, x, y, 16, 16);
+    }
+    private void drawSwap(int i, int j) {
+        int x = (i * 16);
+        int y = (j * 16) + 25;
+        batcher.draw(swap, x, y, 16, 16);
+    }
+
     private void drawSelectionBox(int i, int j) {
         batcher.end();
         //System.out.println("draw at" + i + " " + j);
@@ -659,7 +704,7 @@ public class PlayState extends State {
 
     private void handleMatches(int match, int currentTile, int i, int j) {
 
-        lvlIncrease = 1;
+        lvlIncrease = 0;
 
         if(match == 1) {
             System.out.println("match = 1");
@@ -1261,11 +1306,12 @@ public class PlayState extends State {
             }
         } else if (match == 5) {
             System.out.println("match 5");
-            // reverse L
+            // small reverse L
             if (currentTile == (myWorld.getFirstVTile())) {
 
                 lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
                 lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
+
 
                 if (i < 7) {
                     // tetro check
@@ -1275,14 +1321,18 @@ public class PlayState extends State {
                     }
                 }
 
+                System.out.println("tetro skip");
+
                 myWorld.setGameObject(i,j+1, 0);
                 myWorld.setGameObject(i-1,j+1, 0);
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
                 myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
-            }
-            if (currentTile == (myWorld.getFirstVTile() + 8)) {
+
+                System.out.println("first match5 finish");
+
+            } else if (currentTile == (myWorld.getFirstVTile() + 8)) {
 
                 lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
                 lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
@@ -1318,8 +1368,8 @@ public class PlayState extends State {
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
                 myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
-            }
-            if (currentTile == (myWorld.getFirstVTile() + 8 - 1)) {
+
+            } else if (currentTile == (myWorld.getFirstVTile() + 8 - 1)) {
 
                 lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
                 lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();

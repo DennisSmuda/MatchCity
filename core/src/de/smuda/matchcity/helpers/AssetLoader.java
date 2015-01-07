@@ -16,12 +16,11 @@ public class AssetLoader {
     public static Texture texture, buttons;
     public static TextureRegion empty,  housing, farm, government,
             park, road, shops, power, industry,
-            special, trash, city;
+            special, trash, city,
+            tnt, reset, swap;
 
-    public static TextureRegion houseB, farmB, governB, parkB;//usw
 
-
-    public static BitmapFont font, shadow, pixel, text, number, scoreText;
+    public static BitmapFont font, shadow, pixel, text, number, scoreText, scoreStateText;
 
     private static Preferences prefs;
 
@@ -57,6 +56,13 @@ public class AssetLoader {
         city = new TextureRegion(texture, 0, 48, 16, 16);
         city.flip(false, true);
 
+        // Specials
+        tnt = new TextureRegion(texture, 64, 0, 16, 16);
+        tnt.flip(false, true);
+        reset = new TextureRegion(texture, 64, 16, 16, 16);
+        reset.flip(false, true);
+        swap = new TextureRegion(texture, 64, 32, 16, 16);
+        swap.flip(false, true);
 
 
         // Load text
@@ -73,6 +79,8 @@ public class AssetLoader {
         scoreText = new BitmapFont(Gdx.files.internal("data/04b_19.fnt"));
         scoreText.setColor(115 / 255.0f, 55 / 255.0f, 55 / 255.0f, 1f);
         scoreText.setScale(.55f, -.55f);
+        scoreStateText = new BitmapFont(Gdx.files.internal("data/silkscreen.fnt"));
+        scoreStateText.setScale(.55f, -.55f);
 
 
         // Create or retrieve existing Preferences file

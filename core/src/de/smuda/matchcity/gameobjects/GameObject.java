@@ -17,7 +17,8 @@ public class GameObject {
     public enum FieldType {
         EMPTY, ROAD, HOUSING, INDUSTRY,
         TRASH, FARM, PARK, SPECIAL, CITY,
-        SHOPS, POWER, GOVERNMENT, INIT
+        SHOPS, POWER, GOVERNMENT, INIT,
+        TNT,RESET, SWAP
     }
 
     public GameObject(int i, int j) {

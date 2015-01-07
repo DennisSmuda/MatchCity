@@ -80,7 +80,7 @@ public class GameWorld {
     }
 
     public void addMoney(int increment, int combo) {
-        int newScore = increment * combo;
+        int newScore = (increment+1) * combo;
         //increment = (increment * combo);
         score = score + newScore;
     }
@@ -101,32 +101,40 @@ public class GameWorld {
                 gameField[i][j] = new Farm(i, j);
                 break;
             case 3:
-                gameField[i][j] = new Road(i, j);
-                break;
-            case 4:
                 gameField[i][j] = new Government(i, j);
                 break;
-            case 5:
+            case 4:
                 gameField[i][j] = new Park(i, j);
                 break;
-            case 6:
+            case 5:
                 gameField[i][j] = new Shops(i, j);
                 break;
-            case 7:
+            case 6:
                 gameField[i][j] = new Power(i, j);
                 break;
-            case 8:
+            case 7:
                 gameField[i][j] = new Industry(i, j);
                 break;
-            case 9:
-                gameField[i][j] = new Special(i, j);
-                break;
-            case 10:
+            case 8:
                 gameField[i][j] = new Trash(i, j);
                 break;
-            case 11:
+            case 9:
                 gameField[i][j] = new City(i, j);
                 break;
+            case 10:
+                gameField[i][j] = new Special(i, j);
+                break;
+            case 11:
+                gameField[i][j] = new Road(i, j);
+                break;
+            case 12:
+                gameField[i][j] = new TNT(i, j);
+                break;
+            case 13:
+                gameField[i][j] = new Reset(i, j);
+                break;
+            case 14:
+                gameField[i][j] = new Swap(i, j);
             default:
                 break;
         }
@@ -163,27 +171,27 @@ public class GameWorld {
         nextThree[1] = nextThree[2];
         nextThree[2] = randInt(1, 11);
 
-        int next = randInt(1, 115);
+        int next = randInt(1, 400);
         if (next < 20) {
-            nextThree[2] = 1;
+            nextThree[2] = 1; // house
         } else if (next < 40) {
-            nextThree[2] = 2;
+            nextThree[2] = 2; // farm
         } else if (next < 50) {
-            nextThree[2] = 4; // gov
+            nextThree[2] = 3; // gov
         } else if (next < 60) {
-            nextThree[2] = 7; // power
+            nextThree[2] = 4; // park
         } else if (next < 70) {
-            nextThree[2] = 10; // trash
+            nextThree[2] = 5; // shops
         } else if (next < 80) {
-            nextThree[2] = 5; // park
+            nextThree[2] = 6; // power
         } else if (next < 90) {
-            nextThree[2] = 8; // industry
+            nextThree[2] = 7; // industry
         } else if (next < 100) {
-            nextThree[2] = 6; // shops
+            nextThree[2] = 8; // trash
         } else if(next < 110) {
-            nextThree[2] = 11; // CITY
-        } else if (next < 115) {
-            nextThree[2] = 9; // special
+            nextThree[2] = 9; // city
+        } else if (next > 120) {
+            nextThree[2] = 10; // special
         } else {
             nextThree[2] = 2;
         }
@@ -287,6 +295,60 @@ public class GameWorld {
     public int getFirstVTile() { return firstVTile; }
     public void resetVHTile() { firstVTile = 0; firstHTile = 0; }
 
+    public void resetGameObject(int i, int j, int type, int level) {
+        switch (type) {
+            case 0:
+                gameField[i][j] = new EmptyField(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 1:
+                gameField[i][j] = new Housing(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 2:
+                gameField[i][j] = new Farm(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 3:
+                gameField[i][j] = new Government(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 4:
+                gameField[i][j] = new Park(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 5:
+                gameField[i][j] = new Shops(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 6:
+                gameField[i][j] = new Power(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 7:
+                gameField[i][j] = new Industry(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 8:
+                gameField[i][j] = new Trash(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 9:
+                gameField[i][j] = new City(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 10:
+                gameField[i][j] = new Special(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            case 11:
+                gameField[i][j] = new Road(i, j);
+                gameField[i][i].addLevel(level);
+                break;
+            default:
+                break;
+        }
+    }
 
     /*
     Specials
@@ -307,4 +369,83 @@ public class GameWorld {
             }
         }
     }
+
+    public void resetBoard() {
+
+        int[] levels;
+        levels = new int[10];
+        for (int n = 0; n < 10; n++) {
+            levels[n] = 1;
+        }
+
+        int randI, randJ;
+
+        for (int i = 0; i < 7; i++) {
+            for (int j = 0; j < 8; j++) {
+                    // add all levels together
+                switch (getGameObject(i, j).getType()) {
+                    case FARM:
+                        levels[2] += getGameObject(i, j).getLevel();
+                        setGameObject(i, j, 0);
+                        break;
+                    case HOUSING:
+                        levels[1] += getGameObject(i, j).getLevel();
+                        setGameObject(i, j, 0);
+                        break;
+                    case GOVERNMENT:
+                        levels[3] += getGameObject(i, j).getLevel();
+                        setGameObject(i, j, 0);
+                        break;
+                    case PARK:
+                        levels[4] += getGameObject(i, j).getLevel();
+                        setGameObject(i, j, 0);
+                        break;
+                    case SHOPS:
+                        levels[5] += getGameObject(i, j).getLevel();
+                        setGameObject(i, j, 0);
+                        break;
+                    case POWER:
+                        levels[6] += getGameObject(i, j).getLevel();
+                        setGameObject(i, j, 0);
+                        break;
+                    case INDUSTRY:
+                        levels[7] += getGameObject(i, j).getLevel();
+                        setGameObject(i, j, 0);
+                        break;
+                    case TRASH:
+                        levels[8] += getGameObject(i, j).getLevel();
+                        setGameObject(i, j, 0);
+                        break;
+                    case CITY:
+                        levels[9] += getGameObject(i, j).getLevel();
+                        setGameObject(i, j, 0);
+                        break;
+                    default: break;
+
+                }
+            }
+        }
+
+        // combine
+        int typeCounter = 1;
+
+        while(typeCounter <= 9) {
+            randI = randInt(0, 7);
+            randJ = randInt(0, 8);
+
+            if (getGameObject(randI, randJ).getType() == GameObject.FieldType.EMPTY) {
+                resetGameObject(randI, randJ, typeCounter, levels[typeCounter]);
+                typeCounter++;
+            }
+        }
+    }
+
+    public void swapNext() {
+        int tmp;
+        tmp = nextThree[0];
+        nextThree[0] = nextThree[1];
+        nextThree[1] = tmp;
+    }
+
+
 }
