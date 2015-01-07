@@ -79,8 +79,8 @@ public class MenuState extends State {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         //Draw Background
-        shapeRenderer.setColor(0 / 255.0f, 230 / 255.0f, 118 / 255.0f, 1);
-        shapeRenderer.rect(0, 0, MatchCity.WIDTH, MatchCity.HEIGHT + 150);
+        shapeRenderer.setColor(125 / 255.0f, 200 / 255.0f, 112 / 255.0f, 1);
+        shapeRenderer.rect(0, 0, MatchCity.WIDTH, MatchCity.HEIGHT + 250);
         shapeRenderer.end();
 
         sb.begin();

@@ -64,7 +64,7 @@ public class ScoreState extends State {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         //Draw Background
-        shapeRenderer.setColor(76 / 255.0f, 175 / 255.0f, 80 / 255.0f, 1);
+        shapeRenderer.setColor(125 / 255.0f, 200 / 255.0f, 112 / 255.0f, 1);
         shapeRenderer.rect(0, 0, MatchCity.WIDTH, MatchCity.HEIGHT + 150);
         shapeRenderer.end();
 

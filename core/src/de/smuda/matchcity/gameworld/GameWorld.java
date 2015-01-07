@@ -287,4 +287,24 @@ public class GameWorld {
     public int getFirstVTile() { return firstVTile; }
     public void resetVHTile() { firstVTile = 0; firstHTile = 0; }
 
+
+    /*
+    Specials
+     */
+
+    public void deleteRoad() {
+        boolean found = false;
+        int i;
+        int j;
+
+        while (!found && getNumRoads() > 0) {
+            i = randInt(0, 7);
+            j = randInt(0, 8);
+
+            if (getGameObject(i, j).getType() == GameObject.FieldType.ROAD) {
+                setGameObject(i, j, 0);
+                found = true;
+            }
+        }
+    }
 }

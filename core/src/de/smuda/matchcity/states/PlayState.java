@@ -213,6 +213,10 @@ public class PlayState extends State {
                 } else {
                     comboBroken = false;
 
+                    if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.SPECIAL) {
+                        myWorld.deleteRoad();
+                    }
+
                 }
 
                 if (!comboBroken && match != 0) {
@@ -352,13 +356,16 @@ public class PlayState extends State {
         // Draw current Networth
         String netWorth = myWorld.getScore() + "";
 
-        AssetLoader.scoreText.setColor(115 / 255.0f, 55 / 255.0f, 55 / 255.0f, 1f);
-        AssetLoader.scoreText.draw(batcher,"$ " + netWorth, 5, 6);
+        AssetLoader.scoreText.setColor(102 / 255.0f, 42 / 255.0f, 42 / 255.0f, 1f);
+
+        AssetLoader.scoreText.setScale(.45f, -.45f);
+        AssetLoader.scoreText.draw(batcher, "$ " + netWorth, 5, 6);
+
+
         AssetLoader.scoreText.setScale(.35f, -.35f);
+        AssetLoader.scoreText.draw(batcher, comboTurns + " x " + combo, 90, 10);
 
 
-        AssetLoader.scoreText.draw(batcher,comboTurns +" x " + combo, 90, 10);
-        AssetLoader.scoreText.setScale(.55f, -.55f);
         //AssetLoader.font.draw(batcher,"$ " + netWorth, 4, 5);
 
 
@@ -517,7 +524,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(115 / 255.0f, 55 / 255.0f, 55 / 255.0f, 1f);
+        AssetLoader.number.setColor(102 / 255.0f, 42 / 255.0f, 42 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -528,7 +535,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(130 / 255.0f, 96 / 255.0f, 38 / 255.0f, 1f);
+        AssetLoader.number.setColor(98 / 255.0f, 70 / 255.0f, 21 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -556,7 +563,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(122 / 255.0f, 36 / 255.0f, 62 / 255.0f, 1f);
+        AssetLoader.number.setColor(39 / 255.0f, 73 / 255.0f, 57 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -578,7 +585,7 @@ public class PlayState extends State {
 
         levelInt = myWorld.getGameObject(i, j).getLevel();
         levelString = levelInt.toString();
-        AssetLoader.number.setColor(15 / 255.0f, 70 / 255.0f, 76 / 255.0f, 1f);
+        AssetLoader.number.setColor(60 / 255.0f, 45 / 255.0f, 15 / 255.0f, 1f);
         AssetLoader.number.draw(batcher, levelString, (x + infoXOff), (y + infoYoff));
     }
 
@@ -1387,6 +1394,13 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
                         myWorld.setGameObject(i, j + 1, 0);
+                        if (j < 8) {
+                            // downward tetro + 1 down
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+2).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i, j+2).getLevel();
+                                myWorld.setGameObject(i, j + 2, 0);
+                            }
+                        }
                     }
                 }
 
