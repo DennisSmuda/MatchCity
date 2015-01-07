@@ -105,7 +105,7 @@ public class PlayState extends State {
 
         handleMatches(match, currentTile, randI, randJ);
 
-        turnsUntilSpawn = 2;
+        turnsUntilSpawn = 5;
         prevNumTurns = turnsUntilSpawn;
     }
 
@@ -255,7 +255,7 @@ public class PlayState extends State {
 
 
             if (turnsUntilSpawn == 0 && myWorld.getFreeTiles() >= 4) {
-                turnsUntilSpawn = prevNumTurns + 1;
+                turnsUntilSpawn = prevNumTurns; // plus one
                 if (turnsUntilSpawn > 7) { turnsUntilSpawn = 2; }
                 prevNumTurns = turnsUntilSpawn;
                 // spawn random fields

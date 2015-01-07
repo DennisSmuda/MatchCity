@@ -48,14 +48,14 @@ public class GameWorld {
             for(int j = 0; j < 9; j++) {
                 gameField[i][j] = new EmptyField(i, j);
 
-                if(randInt(1,100) < 20 && roadsOnField <= maxStartingRoads) {
+                if(randInt(1,100) < 15 && roadsOnField <= maxStartingRoads) {
                     gameField[i][j] = new Road(i, j);
                     addRoad();
                 }
-                if(randInt(1,100) > 85) {
+                if(randInt(1,100) > 97) {
                     gameField[i][j] = new Housing(i, j);
                 }
-                if (randInt(1, 100) > 90) {
+                if (randInt(1, 100) > 97) {
                     gameField[i][j] = new Farm(i, j);
                 }
             }
