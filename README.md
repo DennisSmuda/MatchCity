@@ -1,7 +1,7 @@
 Match City
 =====================
 
-Match City is a tile matching game. There are 12 different tiles, plus a couple of special ones, explained further below. The basic tiles have numbers on them, once they are placed on the field. If you manage to get at least three tiles  of the same color touching each other on the field, they will combine into the the tile that you last placed (Cumulating their respective levels). Goal of the game is, to score as many points as possible. This requires you to manage your space on the playing field and (ideally) try to stack your multiplier. 
+Match City is a tile matching game. There are 12 different tiles, and a couple of special ones, explained further below. The basic tiles have numbers on them, once they are placed on the field. If you manage to get at least three tiles  of the same color touching each other on the field, they will combine into the the tile that you last placed (Cumulating their respective levels). Goal of the game is, to score as many points as possible. This requires you to manage your space on the playing field and (ideally) try to stack your multiplier. 
 
 Basics
 -----
@@ -18,7 +18,7 @@ In the top right corner you see two numbers, eg 4 x 12. This would mean that you
 
 Power Ups
 ---------
-Special fields have a crown on them. Three crowns will combine into one of three powerups, that will stay on the playing field. You are free to choose when to activate it, but it takes up one tile on the playing filed. Activation will not count as a "turn", which means your comboturns wont be diminished by it. The current powerups are:
+Special fields have a crown on them. Three crowns will combine into one of three powerups, that will stay on the playing field. You are free to choose when to activate it, but it takes up one tile on the playing filed. Activation will not count as a "turn", which means your comboturns won't be diminished by it. The current powerups are:
 
 [T]NT - will destroy one random grey block from the playing field. <br>
 [S]WAP - will swap your first two tiles <br>
