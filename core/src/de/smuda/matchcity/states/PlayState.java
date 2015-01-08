@@ -15,6 +15,8 @@ import de.smuda.matchcity.ui.TextImage;
 
 /**
  * Created by denni_000 on 02.01.2015.
+ * PlayState handles all the gampleay that takes place on screen.
+ * Each state handles its own input/rendering - takes game data from GameWorld class.
  */
 public class PlayState extends State {
 
