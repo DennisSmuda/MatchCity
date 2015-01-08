@@ -20,6 +20,6 @@ Power Ups
 ---------
 Special fields have a crown on them. Three crowns will combine into one of three powerups, that will stay on the playing field. You are free to choose when to activate it, but it takes up one tile on the playing filed. Activation will not count as a "turn", which means your comboturns wont be diminished by it. The current powerups are:
 
-[T]NT - will destroy one random grey block from the playing field.
+[T]NT - will destroy one random grey block from the playing field. <br>
 [S]WAP - will swap your first two tiles 
 [R]ESET - combines all colors on the field. 
