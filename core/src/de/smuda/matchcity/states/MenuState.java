@@ -55,12 +55,11 @@ public class MenuState extends State {
                         Type.BLACK_FADE));
             }
             if(rules.contains(mouse.x, mouse.y)) {
-                /*
                 gsm.set(new TransitionState(
                         gsm, this,
-                        new RuleState(gsm),
+                        new RulesState(gsm),
                         Type.BLACK_FADE));
-                        */
+
             }
 
         }

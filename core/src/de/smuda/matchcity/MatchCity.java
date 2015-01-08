@@ -10,6 +10,7 @@ import de.smuda.matchcity.helpers.AssetLoader;
 import de.smuda.matchcity.helpers.Content;
 import de.smuda.matchcity.states.GSM;
 import de.smuda.matchcity.states.MenuState;
+import de.smuda.matchcity.states.RulesState;
 
 
 public class MatchCity extends Game {

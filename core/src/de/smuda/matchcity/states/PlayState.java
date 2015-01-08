@@ -127,6 +127,8 @@ public class PlayState extends State {
             if(screenY < barOffset ) {
                 // TOPBAR touch
                 // nothing yet
+                i = -1;
+                j = -1;
 
             } else if(screenY <  400) {
 
@@ -171,6 +173,8 @@ public class PlayState extends State {
 
             } else if (screenY >= 167){
 
+                i = -1;
+                j = -1;
                 // todo: make something
                 // bottom touch
 
@@ -179,74 +183,75 @@ public class PlayState extends State {
             // Checked the position of the touchDown event - need to handle.
             nextTile = myWorld.getNext();
 
-            if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.EMPTY) {
-                // If the selection is empty, the next tile will be placed
-                myWorld.setGameObject(i, j, nextTile);
-                myWorld.calculateNextThree();
-                lvlIncrease = 0;
+            if (i >= 0 && j >= 0) {
+                if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.EMPTY) {
+                    // If the selection is empty, the next tile will be placed
+                    myWorld.setGameObject(i, j, nextTile);
+                    myWorld.calculateNextThree();
+                    lvlIncrease = 0;
 
-                if (isOver()) {
-                    gsm.set(new TransitionState(
-                            gsm,
-                            this,
-                            new ScoreState(gsm, myWorld.getScore()),
-                            TransitionState.Type.BLACK_FADE));
-                }
-
-                // 1=hmatch,2=vmatch, 3=
-                int match = myWorld.checkMatches();
-                int currentTile = (j*8) + i;
-
-                if (match == 0) {
-                    turnsUntilSpawn--;
-                    comboTurns--;
-                    comboBroken = true;
-                    if (comboTurns <= 0) {
-                        combo = 1;
+                    if (isOver()) {
+                        gsm.set(new TransitionState(
+                                gsm,
+                                this,
+                                new ScoreState(gsm, myWorld.getScore()),
+                                TransitionState.Type.BLACK_FADE));
                     }
-                } else {
-                    comboBroken = false;
-                    // Spawn a powerup
-                    if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.SPECIAL) {
-                        int rand = myWorld.randInt(0, 20);
 
-                        if (rand < 10) { // TNT
-                            if (myWorld.getNumRoads() < 1) {
-                                myWorld.setGameObject(i, j, 14);
-                            } else {
-                                myWorld.setGameObject(i, j, 12);
-                            }
-                        } else if(rand < 14) { // Reset
-                            myWorld.setGameObject(i, j, 13);
-                        } else if(rand < 20) { // Swap
-                            myWorld.setGameObject(i, j, 14);
+                    // 1=hmatch,2=vmatch, 3=
+                    int match = myWorld.checkMatches();
+                    int currentTile = (j*8) + i;
+
+                    if (match == 0) {
+                        turnsUntilSpawn--;
+                        comboTurns--;
+                        comboBroken = true;
+                        if (comboTurns <= 0) {
+                            combo = 1;
                         }
+                    } else {
+                        comboBroken = false;
+                        // Spawn a powerup
+                        if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.SPECIAL) {
+                            int rand = myWorld.randInt(0, 20);
+
+                            if (rand < 10) { // TNT
+                                if (myWorld.getNumRoads() < 1) {
+                                    myWorld.setGameObject(i, j, 14);
+                                } else {
+                                    myWorld.setGameObject(i, j, 12);
+                                }
+                            } else if(rand < 14) { // Reset
+                                myWorld.setGameObject(i, j, 13);
+                            } else if(rand < 20) { // Swap
+                                myWorld.setGameObject(i, j, 14);
+                            }
+                        }
+
                     }
 
+                    if (!comboBroken && match != 0) {
+                        combo++;
+                        comboTurns ++;
+                    }
+
+                    if (comboTurns < 0) comboTurns = 0;
+
+                    handleMatches(match, currentTile, i, j);
+
+                } else { // Tile is occupied
+                    // check if special tile was touched
+                    if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.TNT) {
+                        myWorld.setGameObject(i, j, 0);
+                        myWorld.deleteRoad();
+                    } else if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.RESET) {
+                        myWorld.setGameObject(i, j, 0);
+                        myWorld.resetBoard();
+                    } else if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.SWAP) {
+                        myWorld.setGameObject(i, j, 0);
+                        myWorld.swapNext();
+                    }
                 }
-
-                if (!comboBroken && match != 0) {
-                    combo++;
-                    comboTurns ++;
-                }
-
-                if (comboTurns < 0) comboTurns = 0;
-
-                handleMatches(match, currentTile, i, j);
-
-            } else { // Tile is occupied
-                // check if special tile was touched
-                if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.TNT) {
-                    myWorld.setGameObject(i, j, 0);
-                    myWorld.deleteRoad();
-                } else if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.RESET) {
-                    myWorld.setGameObject(i, j, 0);
-                    myWorld.resetBoard();
-                } else if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.SWAP) {
-                    myWorld.setGameObject(i, j, 0);
-                    myWorld.swapNext();
-                }
-
             }
 
             int match = myWorld.checkMatches();

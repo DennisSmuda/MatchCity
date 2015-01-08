@@ -50,7 +50,7 @@ public class ScoreState extends State {
         if(Gdx.input.justTouched()) {
             gsm.set(new TransitionState(
                     gsm, this,
-                    new PlayState(gsm),
+                    new MenuState(gsm),
                     TransitionState.Type.BLACK_FADE));
         }
     }
@@ -74,20 +74,13 @@ public class ScoreState extends State {
         AssetLoader.scoreStateText.setScale(.75f, .75f);
 
         if (isNewHigh) {
-
             AssetLoader.scoreStateText.draw(sb, "New Highscore!", (MatchCity.WIDTH / 2) - 140, MatchCity.HEIGHT / 2 + 70);
             scoreImage.render(sb);
-
-            AssetLoader.scoreStateText.draw(sb, "go again?", MatchCity.WIDTH / 2 - 35, 125);
         } else {
-
             AssetLoader.scoreStateText.draw(sb, "Highscore: " + highscore, (MatchCity.WIDTH / 2) - 130, MatchCity.HEIGHT / 2 + 130);
-            AssetLoader.scoreStateText.draw(sb, "your score: ", (MatchCity.WIDTH / 2) -120, MatchCity.HEIGHT / 2 + 70);
+            AssetLoader.scoreStateText.draw(sb, "your score: ", (MatchCity.WIDTH / 2) - 120, MatchCity.HEIGHT / 2 + 70);
             scoreImage.render(sb);
-            AssetLoader.scoreStateText.draw(sb, "go again?", MatchCity.WIDTH / 2 - 800, 120);
         }
-        //scoreT.render(sb);
-        //goAgain.render(sb);
         sb.end();
     }
 
