@@ -1,5 +1,5 @@
 android {
-    buildToolsVersion "20.0.0"
+    buildToolsVersion "21.1.2"
     compileSdkVersion 21
     sourceSets {
         main {
@@ -65,6 +65,7 @@ task run(type: Exec) {
     def adb = path + "/platform-tools/adb"
     commandLine "$adb", 'shell', 'am', 'start', '-n', 'de.smuda.matchcity.android/de.smuda.matchcity.android.AndroidLauncher'
 }
+
 // sets up the Android Eclipse project, using the old Ant based build.
 eclipse {
     // need to specify Java source sets explicitely, SpringSource Gradle Eclipse plugin

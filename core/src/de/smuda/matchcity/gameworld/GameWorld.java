@@ -1,6 +1,7 @@
 package de.smuda.matchcity.gameworld;
 
 import de.smuda.matchcity.gameobjects.*;
+import de.smuda.matchcity.states.PlayState;
 import de.smuda.matchcity.states.State;
 
 import java.util.Random;
@@ -31,9 +32,7 @@ public class GameWorld {
     public GameWorld() {
         // Initialize next three elements
         nextThree = new int[3];
-        for (int i = 0; i < 3; i++) {
-            nextThree[i] = randInt(1, 4);
-        }
+        initializeNextThree();
 
         // Todo: number of random spawning tiles can be tied to difficulty
         nextRands = new int[5];
@@ -67,7 +66,33 @@ public class GameWorld {
     }
 
     public void addMoney(int increment, int combo) {
-        int newScore = (increment+1) * combo;
+        int newScore = 0;
+
+        if (combo > 0) {
+            newScore = (increment+10) * combo;
+        } else {
+            newScore = (increment + 10);
+        }
+
+        switch (PlayState.getTilesMatched()) { // matched four tiles
+            case 4:
+                PlayState.increaseCombo(1, 1); // increases
+                break;
+            case 5: // five
+                PlayState.increaseCombo(3, 3);
+                break;
+            case 6:
+                PlayState.increaseCombo(5,5);
+                break;
+            case 7:
+                PlayState.increaseCombo(7,7);
+                break;
+            case 8:
+                PlayState.increaseCombo(8,8);
+                break;
+        }
+
+        if (PlayState.getTilesMatched() > 8) { PlayState.increaseCombo( 12, 12);}
         //increment = (increment * combo);
         score = score + newScore;
     }
@@ -154,6 +179,12 @@ public class GameWorld {
             }
         }
         return freeTiles;
+    }
+
+    public void initializeNextThree() {
+        nextThree[0] = randInt(1, 11);
+        nextThree[1] = randInt(1, 11);
+        nextThree[2] = randInt(1, 11);
     }
 
     public void calculateNextThree() {
@@ -346,76 +377,61 @@ public class GameWorld {
         }
     }
 
+    private GameObject.FieldType getType(int i) {
+        switch (i) {
+            case 1:
+                return GameObject.FieldType.HOUSING;
+            case 2:
+                return GameObject.FieldType.FARM;
+            case 3:
+                return GameObject.FieldType.GOVERNMENT;
+            case 4:
+                return GameObject.FieldType.PARK;
+            case 5:
+                return GameObject.FieldType.SHOPS;
+            case 6:
+                return GameObject.FieldType.POWER;
+            case 7:
+                return GameObject.FieldType.INDUSTRY;
+            case 8:
+                return GameObject.FieldType.TRASH;
+            case 9:
+                return GameObject.FieldType.CITY;
+            default:
+                return GameObject.FieldType.HOUSING;
+        }
+    }
+
     public void resetBoard() {
 
-        int[] levels;
-        levels = new int[10];
-        for (int n = 0; n < 10; n++) {
-            levels[n] = 1;
-        }
+        int level = 1;
+        int type = randInt(1,9);
+        GameObject.FieldType fieldType = getType(type);
+
+        PlayState.resetCombo();
 
         int randI, randJ;
 
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 9; j++) {
                     // add all levels together
-                switch (getGameObject(i, j).getType()) {
-                    case FARM:
-                        levels[2] += getGameObject(i, j).getLevel();
-                        setGameObject(i, j, 0);
-                        break;
-                    case HOUSING:
-                        levels[1] += getGameObject(i, j).getLevel();
-                        setGameObject(i, j, 0);
-                        break;
-                    case GOVERNMENT:
-                        levels[3] += getGameObject(i, j).getLevel();
-                        setGameObject(i, j, 0);
-                        break;
-                    case PARK:
-                        levels[4] += getGameObject(i, j).getLevel();
-                        setGameObject(i, j, 0);
-                        break;
-                    case SHOPS:
-                        levels[5] += getGameObject(i, j).getLevel();
-                        setGameObject(i, j, 0);
-                        break;
-                    case POWER:
-                        levels[6] += getGameObject(i, j).getLevel();
-                        setGameObject(i, j, 0);
-                        break;
-                    case INDUSTRY:
-                        levels[7] += getGameObject(i, j).getLevel();
-                        setGameObject(i, j, 0);
-                        break;
-                    case TRASH:
-                        levels[8] += getGameObject(i, j).getLevel();
-                        setGameObject(i, j, 0);
-                        break;
-                    case CITY:
-                        levels[9] += getGameObject(i, j).getLevel();
-                        setGameObject(i, j, 0);
-                        break;
-                    default: break;
-
+                if( getGameObject(i, j).getType() == fieldType) {
+                    level += getGameObject(i, j).getLevel();
+                    setGameObject(i, j, 0);
+                    break;
                 }
             }
         }
-        for (int n = 0; n < 10; n++) {
-            System.out.println(levels[n]);
-        }
 
         // combine
-        int typeCounter = 1;
+        boolean emptyFound = false;
 
-        while(typeCounter <= 9) {
+        while(!emptyFound) {
             randI = randInt(0, 7);
             randJ = randInt(0, 8);
 
             if (getGameObject(randI, randJ).getType() == GameObject.FieldType.EMPTY) {
-                System.out.println("set" + typeCounter + "to " + levels[typeCounter]);
-                resetGameObject(randI, randJ, typeCounter, levels[typeCounter]);
-                typeCounter++;
+                resetGameObject(randI, randJ, type, level);
             }
         }
     }

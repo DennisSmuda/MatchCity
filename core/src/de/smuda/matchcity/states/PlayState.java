@@ -15,8 +15,6 @@ import de.smuda.matchcity.ui.TextImage;
 
 /**
  * Created by denni_000 on 02.01.2015.
- * PlayState handles all the gampleay that takes place on screen.
- * Each state handles its own input/rendering - takes game data from GameWorld class.
  */
 public class PlayState extends State {
 
@@ -41,10 +39,11 @@ public class PlayState extends State {
     private int prevNumTurns;
     private static int lvlIncrease;
     private static int combo;
-    private int comboTurns;
+    private static int comboTurns;
+    private static int tilesMatched;
     private boolean comboBroken;
 
-    private boolean selected = false;
+    private boolean spawned = false;
     public int selectI, selectJ;
 
     private int infoXOff = 5;
@@ -95,6 +94,7 @@ public class PlayState extends State {
         combo = 0;
         comboTurns = 0;
         comboBroken = true;
+        tilesMatched = 0;
         score = myWorld.getScore();
 
         scoreImage = new TextImage(
@@ -107,7 +107,7 @@ public class PlayState extends State {
 
         handleMatches(match, currentTile, randI, randJ);
 
-        turnsUntilSpawn = 5;
+        turnsUntilSpawn = 2;
         prevNumTurns = turnsUntilSpawn;
     }
 
@@ -132,7 +132,7 @@ public class PlayState extends State {
                 i = -1;
                 j = -1;
 
-            } else if(screenY <  400) {
+            } else if(screenY < 167) {
 
                 if(0 <= screenX && screenX < 16) {
                     i = 0;
@@ -174,18 +174,15 @@ public class PlayState extends State {
                 }
 
             } else if (screenY >= 167){
-
+                // Bottom Touch
                 i = -1;
                 j = -1;
-                // todo: make something
-                // bottom touch
-
             }
 
             // Checked the position of the touchDown event - need to handle.
             nextTile = myWorld.getNext();
 
-            if (i >= 0 && j >= 0) {
+            if( i >= 0 && j >= 0) {
                 if (myWorld.getGameObject(i, j).getType() == GameObject.FieldType.EMPTY) {
                     // If the selection is empty, the next tile will be placed
                     myWorld.setGameObject(i, j, nextTile);
@@ -203,6 +200,7 @@ public class PlayState extends State {
                     // 1=hmatch,2=vmatch, 3=
                     int match = myWorld.checkMatches();
                     int currentTile = (j*8) + i;
+                    handleMatches(match, currentTile, i, j);
 
                     if (match == 0) {
                         turnsUntilSpawn--;
@@ -223,13 +221,12 @@ public class PlayState extends State {
                                 } else {
                                     myWorld.setGameObject(i, j, 12);
                                 }
-                            } else if(rand < 14) { // Reset
-                                myWorld.setGameObject(i, j, 13);
-                            } else if(rand < 20) { // Swap
+                            //} else if(rand < 14) { // Reset
+                            //    myWorld.setGameObject(i, j, 13);
+                            } else if(rand <= 20) { // Swap
                                 myWorld.setGameObject(i, j, 14);
                             }
                         }
-
                     }
 
                     if (!comboBroken && match != 0) {
@@ -239,7 +236,7 @@ public class PlayState extends State {
 
                     if (comboTurns < 0) comboTurns = 0;
 
-                    handleMatches(match, currentTile, i, j);
+                    //handleMatches(match, currentTile, i, j);
 
                 } else { // Tile is occupied
                     // check if special tile was touched
@@ -253,17 +250,18 @@ public class PlayState extends State {
                         myWorld.setGameObject(i, j, 0);
                         myWorld.swapNext();
                     }
+
                 }
+
+                int match = myWorld.checkMatches();
+                int currentTile = (j*8) + i;
+                handleMatches(match, currentTile, i, j);
             }
 
-            int match = myWorld.checkMatches();
-            int currentTile = (j*8) + i;
-            handleMatches(match, currentTile, i, j);
-
-
             if (turnsUntilSpawn == 0 && myWorld.getFreeTiles() >= 4) {
-                turnsUntilSpawn = prevNumTurns; // plus one
-                if (turnsUntilSpawn > 7) { turnsUntilSpawn = 2; }
+
+                turnsUntilSpawn = myWorld.randInt(2, 7);
+
                 prevNumTurns = turnsUntilSpawn;
                 // spawn random fields
                 for (int n = 0; n < 3; n++) {
@@ -280,6 +278,7 @@ public class PlayState extends State {
                         n--;
                     }
                 }
+                spawned = false;
                 myWorld.calculateNextRands();
             } else {
                 // game over
@@ -378,11 +377,11 @@ public class PlayState extends State {
 
         AssetLoader.scoreText.setColor(102 / 255.0f, 42 / 255.0f, 42 / 255.0f, 1f);
 
-        AssetLoader.scoreText.setScale(.45f, -.45f);
-        AssetLoader.scoreText.draw(batcher, "$ " + netWorth, 5, 6);
+        AssetLoader.scoreText.setScale(.40f, -.40f);
+        AssetLoader.scoreText.draw(batcher, "$ " + netWorth, 5, 7);
 
-        AssetLoader.scoreText.setScale(.35f, -.35f);
-        AssetLoader.scoreText.draw(batcher, comboTurns + " x " + combo, 90, 10);
+        AssetLoader.scoreText.setScale(.25f, -.25f);
+        AssetLoader.scoreText.draw(batcher, comboTurns + " x " + combo, 95, 9);
 
         drawBottom();
         batcher.end();
@@ -688,6 +687,7 @@ public class PlayState extends State {
     private void handleMatches(int match, int currentTile, int i, int j) {
 
         lvlIncrease = 0;
+        tilesMatched = 3; // trivial
 
         if(match == 1) {
             System.out.println("match = 1");
@@ -702,7 +702,7 @@ public class PlayState extends State {
                     if(myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j-1).getType() ){
                         lvlIncrease += myWorld.gameField[i][j-1].getLevel();
                         myWorld.setGameObject(i, j - 1, 0);
-
+                        tilesMatched++;
                     }
                 }
 
@@ -711,11 +711,20 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
                         lvlIncrease += myWorld.gameField[i][j + 1].getLevel();
                         myWorld.setGameObject(i, j + 1, 0);
+                        tilesMatched++;
 
                         if (j < 7) {  // check for half cross
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
                                 myWorld.setGameObject(i, j + 2, 0);
+                                tilesMatched++;
+                            }
+                        }
+                        if (i > 0) {  // check to the left
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i-1, j+1).getLevel();
+                                myWorld.setGameObject(i-1, j+1, 0);
+                                tilesMatched++;
                             }
                         }
                     }
@@ -742,11 +751,13 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
                         myWorld.setGameObject(i, j - 1, 0);
+                        tilesMatched++;
 
                         if (j > 1) {
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
                                 myWorld.setGameObject(i, j - 2, 0);
+                                tilesMatched++;
                             }
                         }
 
@@ -755,11 +766,13 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j - 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();
                         myWorld.setGameObject(i + 1, j - 1, 0);
+                        tilesMatched++;
                     }
                     // check reverse lying L
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j - 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i - 1, j - 1).getLevel();
                         myWorld.setGameObject(i - 1, j - 1, 0);
+                        tilesMatched++;
                     }
                 }
 
@@ -768,13 +781,13 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
                         myWorld.setGameObject(i, j + 1, 0);
-                        System.out.println("small T");
+                        tilesMatched++;
 
                         if (j < 7) { // chekc for big T
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
                                 myWorld.setGameObject(i, j + 2, 0);
-                                System.out.println("big T");
+                                tilesMatched++;
                             }
                         }
                     }
@@ -783,11 +796,13 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j + 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
                         myWorld.setGameObject(i + 1, j + 1, 0);
+                        tilesMatched++;
                     }
                     // check downwards reverse lying L
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
                         myWorld.setGameObject(i - 1, j + 1, 0);
+                        tilesMatched++;
                     }
                 }
 
@@ -796,7 +811,7 @@ public class PlayState extends State {
                     if(myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
                         myWorld.setGameObject(i + 2, j, 0);
-
+                        tilesMatched++;
                     }
                 }
 
@@ -813,17 +828,18 @@ public class PlayState extends State {
                 lvlIncrease += myWorld.getGameObject(i-2, j).getLevel();
                 lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
 
-
                 if(j > 0) {
                     // check for upwards lying L
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 1).getType() ) {
                         lvlIncrease += myWorld.getGameObject(i , j - 1).getLevel();
                         myWorld.setGameObject(i, j - 1, 0);
+                        tilesMatched++;
 
                         if (j > 1) { // check double upwards
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 2).getType() ) {
                                 lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
                                 myWorld.setGameObject(i, j - 2, 0);
+                                tilesMatched++;
                             }
                         }
                     }
@@ -834,12 +850,14 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
                         myWorld.setGameObject(i, j + 1, 0);
+                        tilesMatched++;
 
                         if (j < 7) {// _
                             // check    | shape
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
                                 myWorld.setGameObject(i, j + 2, 0);
+                                tilesMatched++;
                             }
                         }
 
@@ -848,10 +866,9 @@ public class PlayState extends State {
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j + 1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i+1, j + 1).getLevel();
                                 myWorld.setGameObject(i + 1, j + 1, 0);
+                                tilesMatched++;
                             }
                         }
-
-
                     }
                 }
 
@@ -860,14 +877,14 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1 , j).getType() ) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
                         myWorld.setGameObject(i + 1, j, 0);
-                        System.out.println("4 in row");
+                        tilesMatched++;
 
                         if (i < 6) {
                             // check 5 in a row
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
                                 myWorld.setGameObject(i + 2, j, 0);
-                                System.out.println("5 in row");
+                                tilesMatched++;
                             }
                         }
                         if (j < 7) {
@@ -875,6 +892,7 @@ public class PlayState extends State {
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j+1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 1, j+1).getLevel();
                                 myWorld.setGameObject(i + 1, j + 1, 0);
+                                tilesMatched++;
                             }
                         }
                         if (j > 0) {
@@ -882,6 +900,7 @@ public class PlayState extends State {
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j-1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 1, j-1).getLevel();
                                 myWorld.setGameObject(i + 1, j - 1, 0);
+                                tilesMatched++;
                             }
                         }
                     }
@@ -909,6 +928,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i-1,j).getType()){
                         lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
                         myWorld.setGameObject(i - 1, j, 0);
+                        tilesMatched++;
                     }
                 }
 
@@ -921,12 +941,14 @@ public class PlayState extends State {
                             if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i+2,j).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
                                 myWorld.setGameObject(i + 2, j, 0);
+                                tilesMatched++;
                             }
                         }
                         if (j > 0) {
                             if (myWorld.getGameObject(i,j).getType() == myWorld.getGameObject(i+1,j+1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
                                 myWorld.setGameObject(i + 1, j + 1, 0);
+                                tilesMatched++;
                             }
                         }
                     }
@@ -950,63 +972,72 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
                         myWorld.setGameObject(i-1, j, 0);
+                        tilesMatched++;
 
                         if (i > 1) { // check big liyng T to the right
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i - 2, j).getLevel();
                                 myWorld.setGameObject(i - 2, j, 0);
+                                tilesMatched++;
                             }
                         }
                     }
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j+1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i - 1, j+1).getLevel();
                         myWorld.setGameObject(i - 1, j+1, 0);
+                        tilesMatched++;
                     }
 
                     // upward L left
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j-1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i-1, j-1).getLevel();
                         myWorld.setGameObject(i-1, j-1, 0);
+                        tilesMatched++;
 
                         if (i > 1) { // check big liyng T to the right
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j-1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i - 2, j - 1).getLevel();
                                 myWorld.setGameObject(i - 2, j -1, 0);
+                                tilesMatched++;
                             }
                         }
                     }
-
                 }
+
                 if (i < 7) {
                     // check tripletetro to the right
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i+1, j).getLevel();
                         myWorld.setGameObject(i+1, j, 0);
+                        tilesMatched++;
 
                         if (i < 6) { // check big liyng T to the right
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
                                 myWorld.setGameObject(i + 2, j, 0);
+                                tilesMatched++;
                             }
                         }
                     }
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j+1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
                         myWorld.setGameObject(i + 1, j + 1, 0);
+                        tilesMatched++;
                     }
 
                     // Standin L to the right
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j-1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j-1).getLevel();
                         myWorld.setGameObject(i + 1, j-1, 0);
+                        tilesMatched++;
 
                         if (i < 6) { // check big standing L to the right
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j-1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 2, j-1).getLevel();
                                 myWorld.setGameObject(i + 2, j-1, 0);
+                                tilesMatched++;
                             }
                         }
-
                     }
                 }
 
@@ -1015,16 +1046,16 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
                         myWorld.setGameObject(i, j+1, 0);
+                        tilesMatched++;
 
                         if (j < 6) { // 5 downwards
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i, j+2).getLevel();
                                 myWorld.setGameObject(i, j+2, 0);
+                                tilesMatched++;
                             }
                         }
-
                     }
-
                 }
 
                 myWorld.setGameObject(i, j-1, 0);
@@ -1044,11 +1075,13 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i+1, j).getLevel();
                         myWorld.setGameObject(i+1, j, 0);
+                        tilesMatched++;
 
                         if (i < 6) { // check big liyng T to the right
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 2, j).getLevel();
                                 myWorld.setGameObject(i + 2, j, 0);
+                                tilesMatched++;
                             }
                         }
 
@@ -1056,6 +1089,7 @@ public class PlayState extends State {
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j+1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i + 1, j+1).getLevel();
                                 myWorld.setGameObject(i + 1, j+1, 0);
+                                tilesMatched++;
                             }
                         }
                     }
@@ -1066,11 +1100,13 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-1, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i-1, j).getLevel();
                         myWorld.setGameObject(i-1, j, 0);
+                        tilesMatched++;
 
                         if (i > 1) { // check half cross
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i-2, j).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i - 2, j).getLevel();
                                 myWorld.setGameObject(i - 2, j, 0);
+                                tilesMatched++;
                             }
                         }
                     }
@@ -1081,32 +1117,34 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j +1 ).getLevel();
                         myWorld.setGameObject(i, j + 1, 0);
+                        tilesMatched++;
 
                         if (j < 7) { // check 5 in a row
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i , j +2).getLevel();
                                 myWorld.setGameObject(i, j +2, 0);
+                                tilesMatched++;
                             }
                         }
                         if (i > 0) { // check 4 in a row one left
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i-1 , j +1).getLevel();
                                 myWorld.setGameObject(i-1, j +1, 0);
+                                tilesMatched++;
                             }
                         }
                         if (i < 7) { // check 4 in a row one right
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j + 1).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i+1 , j +1).getLevel();
                                 myWorld.setGameObject(i+1, j +1, 0);
+                                tilesMatched++;
                             }
                         }
-
                     }
                 }
 
                 myWorld.setGameObject(i, j-2, 0);
                 myWorld.setGameObject(i, j-1, 0);
-
 
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
                 myWorld.addMoney(lvlIncrease * 10, combo);
@@ -1126,6 +1164,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j + 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
                         myWorld.setGameObject(i - 1, j + 1, 0);
+                        tilesMatched++;
                     }
                 }
                 if (j > 0) {
@@ -1133,6 +1172,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j -1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j - 1).getLevel();
                         myWorld.setGameObject(i + 1, j - 1, 0);
+                        tilesMatched++;
                     }
                 }
 
@@ -1154,11 +1194,13 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j -1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j - 1).getLevel();
                         myWorld.setGameObject(i, j-1, 0);
+                        tilesMatched++;
                         // tetro + 1
                         if (j > 2) {
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j - 2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
                                 myWorld.setGameObject(i, j - 2, 0);
+                                tilesMatched++;
                             }
                         }
                     }
@@ -1180,9 +1222,9 @@ public class PlayState extends State {
                     if(myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
                         myWorld.setGameObject(i - 1, j, 0);
+                        tilesMatched++;
                     }
                 }
-
 
                 myWorld.setGameObject(i,j-1, 0);
                 myWorld.setGameObject(i+1,j-1, 0);
@@ -1202,7 +1244,6 @@ public class PlayState extends State {
                 myWorld.setGameObject(i+1,j, 0);
                 myWorld.setGameObject(i+1,j+1, 0);
 
-
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
                 myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
@@ -1216,6 +1257,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j + 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
                         myWorld.setGameObject(i + 1, j + 1, 0);
+                        tilesMatched++;
                     }
                 }
 
@@ -1224,6 +1266,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j + 2).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
                         myWorld.setGameObject(i, j + 2, 0);
+                        tilesMatched++;
                     }
                 }
 
@@ -1232,15 +1275,16 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j -1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j -1).getLevel();
                         myWorld.setGameObject(i, j -1, 0);
+                        tilesMatched++;
                         // one more up
                         if (j > 1) {
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j -2).getType() ) {
                                 lvlIncrease += myWorld.getGameObject(i, j - 2).getLevel();
                                 myWorld.setGameObject(i, j - 2, 0);
+                                tilesMatched++;
                             }
                         }
                     }
-
                 }
 
                 myWorld.setGameObject(i-1,j, 0);
@@ -1261,6 +1305,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
                         myWorld.setGameObject(i + 1, j, 0);
+                        tilesMatched++;
                     }
                 }
                 if(j < 8) {
@@ -1268,12 +1313,14 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i , j + 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j + 1).getLevel();
                         myWorld.setGameObject(i , j + 1, 0);
+                        tilesMatched++;
 
                         if(j < 7) {
                             // check downward
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i , j + 2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i, j + 2).getLevel();
                                 myWorld.setGameObject(i , j + 2, 0);
+                                tilesMatched++;
                             }
                         }
 
@@ -1281,6 +1328,7 @@ public class PlayState extends State {
                         if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i -1, j + 1).getType()) {
                             lvlIncrease += myWorld.getGameObject(i - 1, j + 1).getLevel();
                             myWorld.setGameObject(i - 1, j + 1, 0);
+                            tilesMatched++;
                         }
                     }
                 }
@@ -1307,10 +1355,9 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
                         myWorld.setGameObject(i + 1, j, 0);
+                        tilesMatched++;
                     }
                 }
-
-                System.out.println("tetro skip");
 
                 myWorld.setGameObject(i,j+1, 0);
                 myWorld.setGameObject(i-1,j+1, 0);
@@ -1318,8 +1365,6 @@ public class PlayState extends State {
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
                 myWorld.addMoney(lvlIncrease * 10, combo);
                 myWorld.resetVHTile();
-
-                System.out.println("first match5 finish");
 
             } else if (currentTile == (myWorld.getFirstVTile() + 8)) {
 
@@ -1331,6 +1376,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j - 1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j -1 ).getLevel();
                         myWorld.setGameObject(i + 1, j - 1, 0);
+                        tilesMatched++;
                     }
                 }
                 if (j < 8) {
@@ -1338,18 +1384,18 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
                         myWorld.setGameObject(i, j+1, 0);
+                        tilesMatched++;
 
                         if (j < 7) {
                             // downward check
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i, j+2).getLevel();
                                 myWorld.setGameObject(i, j+2, 0);
+                                tilesMatched++;
                             }
                         }
                     }
-
                 }
-
 
                 myWorld.setGameObject(i,j-1, 0);
                 myWorld.setGameObject(i-1,j, 0);
@@ -1384,6 +1430,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i - 1, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i - 1, j).getLevel();
                         myWorld.setGameObject(i - 1, j, 0);
+                        tilesMatched++;
                     }
                 }
 
@@ -1405,6 +1452,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 1, j+1).getType() ) {
                         lvlIncrease += myWorld.getGameObject(i+ 1, j+1).getLevel();
                         myWorld.setGameObject(i + 1, j + 1, 0);
+                        tilesMatched++;
                     }
                 }
 
@@ -1413,6 +1461,7 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i + 2, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i+ 2, j).getLevel();
                         myWorld.setGameObject(i + 2, j, 0);
+                        tilesMatched++;
                     }
                 }
 
@@ -1433,13 +1482,25 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+1).getType()) {
                         lvlIncrease += myWorld.getGameObject(i, j+1).getLevel();
                         myWorld.setGameObject(i, j + 1, 0);
-                        if (j < 8) {
+                        tilesMatched++;
+                        if (j < 7) {
                             // downward tetro + 1 down
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i, j+2).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i, j+2).getLevel();
                                 myWorld.setGameObject(i, j + 2, 0);
+                                tilesMatched++;
                             }
                         }
+                        if (i < 7) {
+                            // downward tetro + 1 down
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j+1).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i+1, j+1).getLevel();
+                                myWorld.setGameObject(i+1, j + 1, 0);
+                                tilesMatched++;
+                            }
+                        }
+
+
                     }
                 }
 
@@ -1448,34 +1509,57 @@ public class PlayState extends State {
                     if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j).getType()) {
                         lvlIncrease += myWorld.getGameObject(i + 1, j).getLevel();
                         myWorld.setGameObject(i + 1, j, 0);
+                        tilesMatched++;
+
                         if (i < 6) {
                             // four in row upward L lying
                             if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j).getType()) {
                                 lvlIncrease += myWorld.getGameObject(i+2, j).getLevel();
                                 myWorld.setGameObject(i+2, j, 0);
+                                tilesMatched++;
 
                                 // four in row uppointing thing
                                 if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+2, j-1).getType()) {
                                     lvlIncrease += myWorld.getGameObject(i+2, j-1).getLevel();
                                     myWorld.setGameObject(i+2, j-1, 0);
+                                    tilesMatched++;
                                 }
                             }
+                        }
 
+                        if (j < 8) {
+                            if (myWorld.getGameObject(i, j).getType() == myWorld.getGameObject(i+1, j+1).getType()) {
+                                lvlIncrease += myWorld.getGameObject(i + 1, j + 1).getLevel();
+                                myWorld.setGameObject(i + 1, j + 1, 0);
+                                tilesMatched++;
+                            }
                         }
                     }
                 }
-
 
                 myWorld.setGameObject(i-1,j, 0);
                 myWorld.setGameObject(i-1,j-1, 0);
 
                 lvlIncrease += myWorld.getGameObject(i, j).getLevel();
                 myWorld.getGameObject(i, j).addLevel(lvlIncrease);
-                myWorld.addMoney(lvlIncrease * 1 , combo);
+                myWorld.addMoney(lvlIncrease * 10 , combo);
 
                 myWorld.resetVHTile();
             }
         }
     }
 
+    public static void resetCombo() {
+        combo = 0;
+        comboTurns = 0;
+    }
+
+    public static void increaseCombo(int i, int j) {
+        combo += i;
+        comboTurns += j;
+    }
+
+    public static int getTilesMatched() {
+        return tilesMatched;
+    }
 }

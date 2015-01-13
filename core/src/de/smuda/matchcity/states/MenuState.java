@@ -55,6 +55,7 @@ public class MenuState extends State {
                         Type.BLACK_FADE));
             }
             if(rules.contains(mouse.x, mouse.y)) {
+
                 gsm.set(new TransitionState(
                         gsm, this,
                         new RulesState(gsm),
@@ -72,6 +73,9 @@ public class MenuState extends State {
 
     @Override
     public void render(SpriteBatch sb) {
+
+        Gdx.gl.glClearColor(125 / 255.0f, 200 / 255.0f, 112 / 255.0f, 1);
+
         sb.setProjectionMatrix(cam.combined);
         sb.begin();
         sb.end();

@@ -50,6 +50,9 @@ public class RulesState extends State {
 
     @Override
     public void render(SpriteBatch sb) {
+
+        Gdx.gl.glClearColor(125 / 255.0f, 200 / 255.0f, 112 / 255.0f, 1);
+
         sb.setProjectionMatrix(cam.combined);
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
